@@ -1,0 +1,2495 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Missió Àtom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="author" content="Concepción Gavilán">
+<meta name="description" content="NEXÈNCIA · Preguntes que importen. Taula periòdica interactiva i missions de química basades en preguntes que importen, per a l'ESO i el Batxillerat.">
+<style>
+/* MISSIÓ ÀTOM — Estil visual provisional
+   Disseny: funcional i net. Tots els colors són variables (tokens) per poder
+   canviar l'estètica sense tocar la lògica. Ordre: tokens · base · taula · fitxa · reptes. */
+
+:root {
+  /* Superfícies i text */
+  --fons: #f6f7f9;
+  --superficie: #ffffff;
+  --superficie-2: #eef1f5;
+  --text: #17202b;
+  --text-suau: #546070;
+  --linia: #d5dbe3;
+  --accent: #1f5fbf;
+  --accent-text: #ffffff;
+  --focus: #f0a500;
+  --ok: #1e7a46;
+  --ok-fons: #e3f4ea;
+  --error: #b3261e;
+  --error-fons: #fbe7e5;
+  --avis-fons: #fff4d6;
+  --avis-text: #6b4e00;
+
+  /* Famílies químiques */
+  --f-alc: #ffd8cc;
+  --f-alt: #ffe8bf;
+  --f-tra: #f3e3c6;
+  --f-lan: #f6d4ea;
+  --f-act: #e8d3f5;
+  --f-pos: #d6e4f0;
+  --f-sem: #d2eee4;
+  --f-nom: #dff3c7;
+  --f-hal: #c9f0f0;
+  --f-gas: #d8dcfb;
+
+  --radi: 6px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fons: #11161d; --superficie: #19202a; --superficie-2: #222b37; --text: #e6ebf1; --text-suau: #9aa7b6;
+    --linia: #313c4a; --accent: #6ea8ff; --accent-text: #0b1420; --focus: #ffc94d;
+    --ok: #6fd69a; --ok-fons: #173326; --error: #ff8a80; --error-fons: #3a1b1a; --avis-fons: #3a3115; --avis-text: #ffe39a;
+    --f-alc: #5a3127; --f-alt: #574320; --f-tra: #4a3e2b; --f-lan: #55304a; --f-act: #46305a;
+    --f-pos: #2d3f52; --f-sem: #234a3e; --f-nom: #3a4d24; --f-hal: #1f4b4d; --f-gas: #33386a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fons: #11161d; --superficie: #19202a; --superficie-2: #222b37; --text: #e6ebf1; --text-suau: #9aa7b6;
+  --linia: #313c4a; --accent: #6ea8ff; --accent-text: #0b1420; --focus: #ffc94d;
+  --ok: #6fd69a; --ok-fons: #173326; --error: #ff8a80; --error-fons: #3a1b1a; --avis-fons: #3a3115; --avis-text: #ffe39a;
+  --f-alc: #5a3127; --f-alt: #574320; --f-tra: #4a3e2b; --f-lan: #55304a; --f-act: #46305a;
+  --f-pos: #2d3f52; --f-sem: #234a3e; --f-nom: #3a4d24; --f-hal: #1f4b4d; --f-gas: #33386a;
+  color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; }
+body {
+  background: var(--fons); color: var(--text); font-family: var(--font); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 40px;
+  -webkit-text-size-adjust: 100%;
+}
+button { font: inherit; color: inherit; touch-action: manipulation; cursor: pointer; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+button[disabled] { cursor: not-allowed; opacity: .5; }
+h1, h2, h3 { line-height: 1.2; margin: 0; text-wrap: balance; }
+.contenidor { max-width: 1240px; margin: 0 auto; }
+
+/* ---------- Capçalera ---------- */
+.capcalera {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 12px; padding-block: 14px; border-bottom: 1px solid var(--linia); margin-bottom: 16px;
+}
+/* Identitat: NEXÈNCIA (marca) · Preguntes que importen (lema) · Missió Àtom (aplicació) */
+.marca { display: grid; gap: 2px; min-width: 0; }
+.segell { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.segell-nom { font-size: .74rem; font-weight: 800; letter-spacing: .28em; color: var(--accent); }
+.segell-lema { font-size: .78rem; font-style: italic; color: var(--text-suau); padding-left: 10px; border-left: 1px solid var(--linia); }
+.titol-app { margin: 2px 0 0; font-size: 1.45rem; font-weight: 800; letter-spacing: .01em; line-height: 1.15; }
+.descripcio-app { margin: 0; font-size: .8rem; color: var(--text-suau); }
+
+/* Peu d'autoria */
+.peu {
+  margin-top: 32px; padding-block: 16px 8px; border-top: 1px solid var(--linia);
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px;
+  font-size: .78rem; color: var(--text-suau);
+}
+.peu p { margin: 0; }
+.peu-marca { font-weight: 800; letter-spacing: .2em; color: var(--text); }
+.pestanyes { display: flex; gap: 6px; }
+.pestanya {
+  border: 1px solid var(--linia); background: var(--superficie); border-radius: var(--radi);
+  padding: 10px 16px; min-height: 44px; font-weight: 600;
+}
+.pestanya[aria-selected="true"] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.marcador { font-variant-numeric: tabular-nums; color: var(--text-suau); font-size: .9rem; }
+.marcador strong { color: var(--text); font-size: 1.05rem; }
+
+/* ---------- Taula periòdica ---------- */
+.taula-marc { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+.taula {
+  display: grid; grid-template-columns: repeat(18, minmax(38px, 1fr)); grid-auto-rows: auto;
+  gap: 3px; min-width: 700px; position: relative;
+}
+.el {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 52px; padding: 3px 1px; border: 1px solid transparent; border-radius: 4px;
+  background: var(--superficie-2); line-height: 1.05; text-align: center;
+}
+.el .z { font-size: .62rem; color: var(--text-suau); font-variant-numeric: tabular-nums; }
+.el .s { font-size: 1.05rem; font-weight: 700; }
+.el .n { font-size: .55rem; color: var(--text-suau); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.el:hover { border-color: var(--text-suau); }
+.el[aria-pressed="true"] { border: 2px solid var(--text); box-shadow: 0 0 0 2px var(--focus); z-index: 1; }
+.el.alc { background: var(--f-alc); } .el.alt { background: var(--f-alt); } .el.tra { background: var(--f-tra); }
+.el.lan { background: var(--f-lan); } .el.act { background: var(--f-act); } .el.pos { background: var(--f-pos); }
+.el.sem { background: var(--f-sem); } .el.nom { background: var(--f-nom); } .el.hal { background: var(--f-hal); }
+.el.gas { background: var(--f-gas); }
+.marca-f {
+  display: flex; align-items: center; justify-content: center; font-size: .6rem; color: var(--text-suau);
+  border: 1px dashed var(--linia); border-radius: 4px; text-align: center; line-height: 1.1;
+}
+.separador-f { grid-column: 1 / -1; height: 10px; }
+.etiq-grup { font-size: .6rem; text-align: center; color: var(--text-suau); align-self: end; font-variant-numeric: tabular-nums; }
+@media (max-width: 899px) { .el .n { display: none; } .el { min-height: 44px; } }
+
+/* Resum de l'element seleccionat, dins del buit de la taula (períodes 1-3, grups 3-12) */
+.resum {
+  grid-column: 3 / 13; grid-row: 2 / 5; align-self: stretch; margin: 2px 6px;
+  display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: center;
+  padding: 8px 12px; border-radius: var(--radi); background: var(--superficie); border: 1px solid var(--linia);
+  min-width: 0;
+}
+.resum .gran { grid-row: 1 / 4; font-size: 2.4rem; font-weight: 800; line-height: 1; text-align: center; min-width: 64px; }
+.resum .gran small { display: block; font-size: .75rem; font-weight: 500; color: var(--text-suau); }
+.resum .nom-resum { font-size: 1.15rem; font-weight: 700; }
+.resum .cfg-resum { font-family: var(--mono); font-size: .9rem; overflow-wrap: anywhere; }
+.resum .fam-resum { font-size: .82rem; color: var(--text-suau); }
+.resum-boto { justify-self: start; border: 0; background: none; color: var(--accent); padding: 4px 0; font-size: .85rem; font-weight: 600; text-decoration: underline; }
+
+.llegenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0 18px; font-size: .8rem; color: var(--text-suau); }
+.llegenda span { display: inline-flex; align-items: center; gap: 6px; }
+.llegenda i { flex: 0 0 14px; align-self: center; width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid var(--linia); }
+
+/* ---------- Fitxa de l'element ---------- */
+.fitxa {
+  background: var(--superficie); border: 1px solid var(--linia); border-radius: 10px;
+  padding: 18px; display: grid; gap: 18px; scroll-margin-top: 12px;
+}
+.fitxa-cap { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.fitxa-simbol {
+  width: 88px; height: 88px; border-radius: 8px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; font-size: 2.3rem; font-weight: 800; line-height: 1; border: 1px solid var(--linia);
+}
+.fitxa-simbol small { font-size: .8rem; font-weight: 600; margin-bottom: 4px; }
+.fitxa-titol h2 { font-size: 1.6rem; text-transform: capitalize; }
+.xips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.xip { font-size: .8rem; padding: 3px 9px; border-radius: 99px; background: var(--superficie-2); color: var(--text); }
+.blocs { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+.bloc { min-width: 0; }
+.bloc h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-suau); margin-bottom: 8px; }
+.config { font-family: var(--mono); font-size: 1rem; overflow-wrap: anywhere; }
+.config-et { font-size: .8rem; color: var(--text-suau); }
+.nota { font-size: .85rem; color: var(--text-suau); margin: 8px 0 0; }
+.avis { background: var(--avis-fons); color: var(--avis-text); border-radius: var(--radi); padding: 8px 12px; font-size: .88rem; margin-top: 8px; }
+.dades { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; font-size: .95rem; }
+.dades dt { color: var(--text-suau); }
+.dades dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+/* Model de capes */
+.capes-svg { width: 100%; max-width: 260px; height: auto; display: block; }
+.capes-svg .orbita { fill: none; stroke: var(--linia); stroke-width: 1.2; }
+.capes-svg .nucli { fill: var(--accent); }
+.capes-svg .electro { fill: var(--text); }
+.capes-svg text { fill: var(--text); font-family: var(--font); }
+.capes-svg .nucli-text { fill: var(--accent-text); font-size: 11px; font-weight: 700; }
+.capes-llista { font-family: var(--mono); font-size: .95rem; }
+
+/* Diagrama d'orbitals */
+.orbitals { display: grid; gap: 10px; }
+.nivell { display: grid; grid-template-columns: 52px 1fr; align-items: start; gap: 8px; }
+.nivell-et { font-size: .8rem; color: var(--text-suau); padding-top: 22px; font-variant-numeric: tabular-nums; }
+.subnivells { display: flex; flex-wrap: wrap; gap: 10px 14px; }
+.subnivell { display: flex; flex-direction: column; gap: 3px; }
+.subnivell-et { font-size: .78rem; font-family: var(--mono); color: var(--text-suau); }
+.caixes { display: flex; }
+.caixa {
+  width: 30px; height: 34px; border: 1.5px solid var(--text); margin-left: -1.5px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.05rem; font-weight: 700;
+  background: var(--superficie); letter-spacing: -2px;
+}
+.caixa:first-child { margin-left: 0; }
+.caixa.mig { background: var(--avis-fons); }
+
+/* ---------- Reptes ---------- */
+.reptes { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; align-items: start; }
+@media (max-width: 860px) { .reptes { grid-template-columns: minmax(0, 1fr); } }
+.targeta { background: var(--superficie); border: 1px solid var(--linia); border-radius: 10px; padding: 18px; display: grid; gap: 14px; }
+.etiquetes { display: flex; flex-wrap: wrap; gap: 6px; }
+.etiq { font-size: .75rem; padding: 3px 9px; border-radius: 99px; background: var(--superficie-2); }
+.etiq.reforc { background: var(--avis-fons); color: var(--avis-text); font-weight: 600; }
+.context { margin: 0; font-size: 1rem; }
+.pregunta { margin: 0; font-size: 1.12rem; font-weight: 700; }
+.opcions { display: grid; gap: 8px; }
+.opcio {
+  text-align: left; padding: 12px 14px; min-height: 48px; border-radius: var(--radi);
+  border: 1.5px solid var(--linia); background: var(--superficie); display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start;
+}
+.opcio .lletra { font-weight: 700; color: var(--text-suau); }
+.opcio[aria-checked="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.opcio[disabled] { opacity: 1; cursor: default; }
+.opcio.correcta { border-color: var(--ok); background: var(--ok-fons); }
+.opcio.incorrecta { border-color: var(--error); background: var(--error-fons); }
+.accions { display: flex; flex-wrap: wrap; gap: 8px; }
+.boto {
+  padding: 10px 18px; min-height: 44px; border-radius: var(--radi); border: 1px solid var(--linia);
+  background: var(--superficie); font-weight: 600;
+}
+.boto.primari { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.pista { background: var(--avis-fons); color: var(--avis-text); border-radius: var(--radi); padding: 10px 14px; }
+.feedback { border-radius: var(--radi); padding: 12px 14px; display: grid; gap: 8px; }
+.feedback.ok { background: var(--ok-fons); }
+.feedback.ko { background: var(--error-fons); }
+.feedback p { margin: 0; }
+.feedback .veredicte { font-weight: 800; }
+.feedback.ok .veredicte { color: var(--ok); }
+.feedback.ko .veredicte { color: var(--error); }
+.canvi-nivell { background: var(--superficie); border: 1px solid var(--linia); border-radius: var(--radi); padding: 8px 12px; font-weight: 600; }
+.enllacos-el { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .88rem; }
+.enllac-el { border: 1px solid var(--linia); background: var(--superficie); border-radius: 99px; padding: 4px 12px; min-height: 36px; }
+.panell { background: var(--superficie); border: 1px solid var(--linia); border-radius: 10px; padding: 16px; display: grid; gap: 12px; }
+.panell h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-suau); }
+.estad { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; margin: 0; font-size: .92rem; font-variant-numeric: tabular-nums; }
+.estad dt { color: var(--text-suau); }
+.estad dd { margin: 0; text-align: right; font-weight: 600; }
+.progres { height: 8px; background: var(--superficie-2); border-radius: 99px; overflow: hidden; }
+.progres div { height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+.resum-text { width: 100%; min-height: 190px; resize: vertical; font-family: var(--mono); font-size: .8rem; border: 1px solid var(--linia); border-radius: var(--radi); padding: 8px; background: var(--superficie-2); color: var(--text); }
+.missatge-copia { font-size: .85rem; color: var(--ok); min-height: 1.2em; margin: 0; }
+
+.sense-js { background: var(--avis-fons); color: var(--avis-text); padding: 10px 14px; border-radius: var(--radi); margin-bottom: 12px; }
+
+/* ---------- Preguntes que importen ---------- */
+.eyebrow { margin: 0; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); }
+.lema { display: grid; gap: 6px; margin-bottom: 18px; max-width: 70ch; }
+.lema h2 { font-size: 1.45rem; }
+.lema p { margin: 0; }
+.nivell-missions { margin-bottom: 20px; }
+.nivell-missions h3 { font-size: 1.05rem; }
+.nivell-missions h3 span { font-weight: 500; color: var(--text-suau); font-size: .88rem; }
+.nivell-missions > .nota { margin: 2px 0 10px; }
+.graella-missions { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.carta-missio {
+  text-align: left; display: grid; gap: 6px; align-content: start; padding: 14px; border-radius: 10px;
+  border: 1px solid var(--linia); background: var(--superficie); min-height: 44px;
+}
+.carta-missio:hover { border-color: var(--accent); }
+.carta-missio.recomanada { border: 2px solid var(--accent); }
+.carta-titol { font-size: .8rem; font-weight: 700; color: var(--text-suau); text-transform: uppercase; letter-spacing: .06em; }
+.carta-pregunta { font-size: 1rem; font-weight: 600; line-height: 1.35; }
+.estat { justify-self: start; font-size: .75rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; }
+.estat.feta { background: var(--ok-fons); color: var(--ok); }
+.estat.rec { background: var(--accent); color: var(--accent-text); }
+.pregunta-importa { border-top: 4px solid var(--accent); }
+.gran-pregunta { font-size: 1.45rem; line-height: 1.3; max-width: 60ch; }
+.atura { margin: 0; font-weight: 600; }
+.etiq-camp { font-size: .85rem; color: var(--text-suau); }
+.camp-text { width: 100%; font: inherit; border: 1px solid var(--linia); border-radius: var(--radi); padding: 8px 10px; background: var(--superficie); color: var(--text); }
+.cami { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+.cami .pas { font-size: .75rem; padding: 4px 10px; border-radius: 99px; background: var(--superficie-2); color: var(--text-suau); }
+.cami .pas.fet { background: var(--ok-fons); color: var(--ok); }
+.cami .pas.actual { background: var(--accent); color: var(--accent-text); font-weight: 700; }
+.recordatori { margin: 0; font-size: .88rem; color: var(--text-suau); }
+.pista p { margin: 0 0 4px; }
+.pista p:last-child { margin: 0; }
+.justificacio { display: grid; gap: 10px; padding: 14px; border: 1px dashed var(--accent); border-radius: var(--radi); }
+.justificacio .pregunta { font-size: 1rem; }
+.accions.secundaries { border-top: 1px solid var(--linia); padding-top: 12px; }
+.hipotesi-final, .resposta-final { padding: 12px 14px; border-radius: var(--radi); background: var(--superficie-2); }
+.hipotesi-final p, .resposta-final p { margin: 0 0 6px; }
+.hipotesi-final p:last-child, .resposta-final p:last-child { margin: 0; }
+.resposta-final { background: var(--ok-fons); }
+.insignia-nova { margin: 0; font-size: 1.05rem; }
+.insignies { margin: 0; padding-left: 18px; font-size: .9rem; }
+.reforcos { display: flex; flex-wrap: wrap; gap: 6px; }
+.blocs.estret { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+</style>
+
+</head>
+<body>
+<div class="contenidor">
+  <header class="capcalera">
+    <div class="marca">
+      <p class="segell"><span class="segell-nom">NEXÈNCIA</span><span class="segell-lema">Preguntes que importen</span></p>
+      <h1 class="titol-app">Missió Àtom</h1>
+      <p class="descripcio-app">Taula periòdica i reptes de química · ESO</p>
+    </div>
+    <nav class="pestanyes" role="tablist" aria-label="Seccions">
+      <button class="pestanya" role="tab" id="tab-taula" aria-selected="true" aria-controls="vista-taula" data-vista="taula">Taula periòdica</button>
+      <button class="pestanya" role="tab" id="tab-missions" aria-selected="false" aria-controls="vista-missions" data-vista="missions">Preguntes que importen</button>
+    </nav>
+    <div class="marcador" id="marcador" aria-live="polite"><strong id="m-punts">0</strong> punts · <strong id="m-nivell">Explorador</strong></div>
+  </header>
+
+  <noscript><p class="sense-js">La taula es pot consultar, però les fitxes i les missions necessiten JavaScript activat.</p></noscript>
+
+  <main>
+    <section id="vista-taula" role="tabpanel" aria-labelledby="tab-taula">
+      <div class="taula-marc">
+        <div class="taula" id="taula" aria-label="Taula periòdica dels 118 elements">
+          <div class="etiq-grup" style="grid-row:1;grid-column:1">1</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:2">2</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:3">3</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:4">4</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:5">5</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:6">6</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:7">7</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:8">8</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:9">9</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:10">10</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:11">11</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:12">12</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:13">13</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:14">14</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:15">15</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:16">16</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:17">17</div>
+          <div class="etiq-grup" style="grid-row:1;grid-column:18">18</div>
+          <button class="el nom" type="button" data-z="1" aria-pressed="false" style="grid-row:2;grid-column:1" aria-label="hidrogen, Z 1"><span class="z">1</span><span class="s">H</span><span class="n">hidrogen</span></button>
+          <button class="el gas" type="button" data-z="2" aria-pressed="false" style="grid-row:2;grid-column:18" aria-label="heli, Z 2"><span class="z">2</span><span class="s">He</span><span class="n">heli</span></button>
+          <button class="el alc" type="button" data-z="3" aria-pressed="false" style="grid-row:3;grid-column:1" aria-label="liti, Z 3"><span class="z">3</span><span class="s">Li</span><span class="n">liti</span></button>
+          <button class="el alt" type="button" data-z="4" aria-pressed="false" style="grid-row:3;grid-column:2" aria-label="beril·li, Z 4"><span class="z">4</span><span class="s">Be</span><span class="n">beril·li</span></button>
+          <button class="el sem" type="button" data-z="5" aria-pressed="false" style="grid-row:3;grid-column:13" aria-label="bor, Z 5"><span class="z">5</span><span class="s">B</span><span class="n">bor</span></button>
+          <button class="el nom" type="button" data-z="6" aria-pressed="false" style="grid-row:3;grid-column:14" aria-label="carboni, Z 6"><span class="z">6</span><span class="s">C</span><span class="n">carboni</span></button>
+          <button class="el nom" type="button" data-z="7" aria-pressed="false" style="grid-row:3;grid-column:15" aria-label="nitrogen, Z 7"><span class="z">7</span><span class="s">N</span><span class="n">nitrogen</span></button>
+          <button class="el nom" type="button" data-z="8" aria-pressed="false" style="grid-row:3;grid-column:16" aria-label="oxigen, Z 8"><span class="z">8</span><span class="s">O</span><span class="n">oxigen</span></button>
+          <button class="el hal" type="button" data-z="9" aria-pressed="false" style="grid-row:3;grid-column:17" aria-label="fluor, Z 9"><span class="z">9</span><span class="s">F</span><span class="n">fluor</span></button>
+          <button class="el gas" type="button" data-z="10" aria-pressed="false" style="grid-row:3;grid-column:18" aria-label="neó, Z 10"><span class="z">10</span><span class="s">Ne</span><span class="n">neó</span></button>
+          <button class="el alc" type="button" data-z="11" aria-pressed="false" style="grid-row:4;grid-column:1" aria-label="sodi, Z 11"><span class="z">11</span><span class="s">Na</span><span class="n">sodi</span></button>
+          <button class="el alt" type="button" data-z="12" aria-pressed="false" style="grid-row:4;grid-column:2" aria-label="magnesi, Z 12"><span class="z">12</span><span class="s">Mg</span><span class="n">magnesi</span></button>
+          <button class="el pos" type="button" data-z="13" aria-pressed="false" style="grid-row:4;grid-column:13" aria-label="alumini, Z 13"><span class="z">13</span><span class="s">Al</span><span class="n">alumini</span></button>
+          <button class="el sem" type="button" data-z="14" aria-pressed="false" style="grid-row:4;grid-column:14" aria-label="silici, Z 14"><span class="z">14</span><span class="s">Si</span><span class="n">silici</span></button>
+          <button class="el nom" type="button" data-z="15" aria-pressed="false" style="grid-row:4;grid-column:15" aria-label="fòsfor, Z 15"><span class="z">15</span><span class="s">P</span><span class="n">fòsfor</span></button>
+          <button class="el nom" type="button" data-z="16" aria-pressed="false" style="grid-row:4;grid-column:16" aria-label="sofre, Z 16"><span class="z">16</span><span class="s">S</span><span class="n">sofre</span></button>
+          <button class="el hal" type="button" data-z="17" aria-pressed="false" style="grid-row:4;grid-column:17" aria-label="clor, Z 17"><span class="z">17</span><span class="s">Cl</span><span class="n">clor</span></button>
+          <button class="el gas" type="button" data-z="18" aria-pressed="false" style="grid-row:4;grid-column:18" aria-label="argó, Z 18"><span class="z">18</span><span class="s">Ar</span><span class="n">argó</span></button>
+          <button class="el alc" type="button" data-z="19" aria-pressed="false" style="grid-row:5;grid-column:1" aria-label="potassi, Z 19"><span class="z">19</span><span class="s">K</span><span class="n">potassi</span></button>
+          <button class="el alt" type="button" data-z="20" aria-pressed="false" style="grid-row:5;grid-column:2" aria-label="calci, Z 20"><span class="z">20</span><span class="s">Ca</span><span class="n">calci</span></button>
+          <button class="el tra" type="button" data-z="21" aria-pressed="false" style="grid-row:5;grid-column:3" aria-label="escandi, Z 21"><span class="z">21</span><span class="s">Sc</span><span class="n">escandi</span></button>
+          <button class="el tra" type="button" data-z="22" aria-pressed="false" style="grid-row:5;grid-column:4" aria-label="titani, Z 22"><span class="z">22</span><span class="s">Ti</span><span class="n">titani</span></button>
+          <button class="el tra" type="button" data-z="23" aria-pressed="false" style="grid-row:5;grid-column:5" aria-label="vanadi, Z 23"><span class="z">23</span><span class="s">V</span><span class="n">vanadi</span></button>
+          <button class="el tra" type="button" data-z="24" aria-pressed="false" style="grid-row:5;grid-column:6" aria-label="crom, Z 24"><span class="z">24</span><span class="s">Cr</span><span class="n">crom</span></button>
+          <button class="el tra" type="button" data-z="25" aria-pressed="false" style="grid-row:5;grid-column:7" aria-label="manganès, Z 25"><span class="z">25</span><span class="s">Mn</span><span class="n">manganès</span></button>
+          <button class="el tra" type="button" data-z="26" aria-pressed="false" style="grid-row:5;grid-column:8" aria-label="ferro, Z 26"><span class="z">26</span><span class="s">Fe</span><span class="n">ferro</span></button>
+          <button class="el tra" type="button" data-z="27" aria-pressed="false" style="grid-row:5;grid-column:9" aria-label="cobalt, Z 27"><span class="z">27</span><span class="s">Co</span><span class="n">cobalt</span></button>
+          <button class="el tra" type="button" data-z="28" aria-pressed="false" style="grid-row:5;grid-column:10" aria-label="níquel, Z 28"><span class="z">28</span><span class="s">Ni</span><span class="n">níquel</span></button>
+          <button class="el tra" type="button" data-z="29" aria-pressed="false" style="grid-row:5;grid-column:11" aria-label="coure, Z 29"><span class="z">29</span><span class="s">Cu</span><span class="n">coure</span></button>
+          <button class="el tra" type="button" data-z="30" aria-pressed="false" style="grid-row:5;grid-column:12" aria-label="zinc, Z 30"><span class="z">30</span><span class="s">Zn</span><span class="n">zinc</span></button>
+          <button class="el pos" type="button" data-z="31" aria-pressed="false" style="grid-row:5;grid-column:13" aria-label="gal·li, Z 31"><span class="z">31</span><span class="s">Ga</span><span class="n">gal·li</span></button>
+          <button class="el sem" type="button" data-z="32" aria-pressed="false" style="grid-row:5;grid-column:14" aria-label="germani, Z 32"><span class="z">32</span><span class="s">Ge</span><span class="n">germani</span></button>
+          <button class="el sem" type="button" data-z="33" aria-pressed="false" style="grid-row:5;grid-column:15" aria-label="arsènic, Z 33"><span class="z">33</span><span class="s">As</span><span class="n">arsènic</span></button>
+          <button class="el nom" type="button" data-z="34" aria-pressed="false" style="grid-row:5;grid-column:16" aria-label="seleni, Z 34"><span class="z">34</span><span class="s">Se</span><span class="n">seleni</span></button>
+          <button class="el hal" type="button" data-z="35" aria-pressed="false" style="grid-row:5;grid-column:17" aria-label="brom, Z 35"><span class="z">35</span><span class="s">Br</span><span class="n">brom</span></button>
+          <button class="el gas" type="button" data-z="36" aria-pressed="false" style="grid-row:5;grid-column:18" aria-label="criptó, Z 36"><span class="z">36</span><span class="s">Kr</span><span class="n">criptó</span></button>
+          <button class="el alc" type="button" data-z="37" aria-pressed="false" style="grid-row:6;grid-column:1" aria-label="rubidi, Z 37"><span class="z">37</span><span class="s">Rb</span><span class="n">rubidi</span></button>
+          <button class="el alt" type="button" data-z="38" aria-pressed="false" style="grid-row:6;grid-column:2" aria-label="estronci, Z 38"><span class="z">38</span><span class="s">Sr</span><span class="n">estronci</span></button>
+          <button class="el tra" type="button" data-z="39" aria-pressed="false" style="grid-row:6;grid-column:3" aria-label="itri, Z 39"><span class="z">39</span><span class="s">Y</span><span class="n">itri</span></button>
+          <button class="el tra" type="button" data-z="40" aria-pressed="false" style="grid-row:6;grid-column:4" aria-label="zirconi, Z 40"><span class="z">40</span><span class="s">Zr</span><span class="n">zirconi</span></button>
+          <button class="el tra" type="button" data-z="41" aria-pressed="false" style="grid-row:6;grid-column:5" aria-label="niobi, Z 41"><span class="z">41</span><span class="s">Nb</span><span class="n">niobi</span></button>
+          <button class="el tra" type="button" data-z="42" aria-pressed="false" style="grid-row:6;grid-column:6" aria-label="molibdè, Z 42"><span class="z">42</span><span class="s">Mo</span><span class="n">molibdè</span></button>
+          <button class="el tra" type="button" data-z="43" aria-pressed="false" style="grid-row:6;grid-column:7" aria-label="tecneci, Z 43"><span class="z">43</span><span class="s">Tc</span><span class="n">tecneci</span></button>
+          <button class="el tra" type="button" data-z="44" aria-pressed="false" style="grid-row:6;grid-column:8" aria-label="ruteni, Z 44"><span class="z">44</span><span class="s">Ru</span><span class="n">ruteni</span></button>
+          <button class="el tra" type="button" data-z="45" aria-pressed="false" style="grid-row:6;grid-column:9" aria-label="rodi, Z 45"><span class="z">45</span><span class="s">Rh</span><span class="n">rodi</span></button>
+          <button class="el tra" type="button" data-z="46" aria-pressed="false" style="grid-row:6;grid-column:10" aria-label="pal·ladi, Z 46"><span class="z">46</span><span class="s">Pd</span><span class="n">pal·ladi</span></button>
+          <button class="el tra" type="button" data-z="47" aria-pressed="false" style="grid-row:6;grid-column:11" aria-label="plata, Z 47"><span class="z">47</span><span class="s">Ag</span><span class="n">plata</span></button>
+          <button class="el tra" type="button" data-z="48" aria-pressed="false" style="grid-row:6;grid-column:12" aria-label="cadmi, Z 48"><span class="z">48</span><span class="s">Cd</span><span class="n">cadmi</span></button>
+          <button class="el pos" type="button" data-z="49" aria-pressed="false" style="grid-row:6;grid-column:13" aria-label="indi, Z 49"><span class="z">49</span><span class="s">In</span><span class="n">indi</span></button>
+          <button class="el pos" type="button" data-z="50" aria-pressed="false" style="grid-row:6;grid-column:14" aria-label="estany, Z 50"><span class="z">50</span><span class="s">Sn</span><span class="n">estany</span></button>
+          <button class="el sem" type="button" data-z="51" aria-pressed="false" style="grid-row:6;grid-column:15" aria-label="antimoni, Z 51"><span class="z">51</span><span class="s">Sb</span><span class="n">antimoni</span></button>
+          <button class="el sem" type="button" data-z="52" aria-pressed="false" style="grid-row:6;grid-column:16" aria-label="tel·luri, Z 52"><span class="z">52</span><span class="s">Te</span><span class="n">tel·luri</span></button>
+          <button class="el hal" type="button" data-z="53" aria-pressed="false" style="grid-row:6;grid-column:17" aria-label="iode, Z 53"><span class="z">53</span><span class="s">I</span><span class="n">iode</span></button>
+          <button class="el gas" type="button" data-z="54" aria-pressed="false" style="grid-row:6;grid-column:18" aria-label="xenó, Z 54"><span class="z">54</span><span class="s">Xe</span><span class="n">xenó</span></button>
+          <button class="el alc" type="button" data-z="55" aria-pressed="false" style="grid-row:7;grid-column:1" aria-label="cesi, Z 55"><span class="z">55</span><span class="s">Cs</span><span class="n">cesi</span></button>
+          <button class="el alt" type="button" data-z="56" aria-pressed="false" style="grid-row:7;grid-column:2" aria-label="bari, Z 56"><span class="z">56</span><span class="s">Ba</span><span class="n">bari</span></button>
+          <button class="el lan" type="button" data-z="57" aria-pressed="false" style="grid-row:10;grid-column:3" aria-label="lantani, Z 57"><span class="z">57</span><span class="s">La</span><span class="n">lantani</span></button>
+          <button class="el lan" type="button" data-z="58" aria-pressed="false" style="grid-row:10;grid-column:4" aria-label="ceri, Z 58"><span class="z">58</span><span class="s">Ce</span><span class="n">ceri</span></button>
+          <button class="el lan" type="button" data-z="59" aria-pressed="false" style="grid-row:10;grid-column:5" aria-label="praseodimi, Z 59"><span class="z">59</span><span class="s">Pr</span><span class="n">praseodimi</span></button>
+          <button class="el lan" type="button" data-z="60" aria-pressed="false" style="grid-row:10;grid-column:6" aria-label="neodimi, Z 60"><span class="z">60</span><span class="s">Nd</span><span class="n">neodimi</span></button>
+          <button class="el lan" type="button" data-z="61" aria-pressed="false" style="grid-row:10;grid-column:7" aria-label="prometi, Z 61"><span class="z">61</span><span class="s">Pm</span><span class="n">prometi</span></button>
+          <button class="el lan" type="button" data-z="62" aria-pressed="false" style="grid-row:10;grid-column:8" aria-label="samari, Z 62"><span class="z">62</span><span class="s">Sm</span><span class="n">samari</span></button>
+          <button class="el lan" type="button" data-z="63" aria-pressed="false" style="grid-row:10;grid-column:9" aria-label="europi, Z 63"><span class="z">63</span><span class="s">Eu</span><span class="n">europi</span></button>
+          <button class="el lan" type="button" data-z="64" aria-pressed="false" style="grid-row:10;grid-column:10" aria-label="gadolini, Z 64"><span class="z">64</span><span class="s">Gd</span><span class="n">gadolini</span></button>
+          <button class="el lan" type="button" data-z="65" aria-pressed="false" style="grid-row:10;grid-column:11" aria-label="terbi, Z 65"><span class="z">65</span><span class="s">Tb</span><span class="n">terbi</span></button>
+          <button class="el lan" type="button" data-z="66" aria-pressed="false" style="grid-row:10;grid-column:12" aria-label="disprosi, Z 66"><span class="z">66</span><span class="s">Dy</span><span class="n">disprosi</span></button>
+          <button class="el lan" type="button" data-z="67" aria-pressed="false" style="grid-row:10;grid-column:13" aria-label="holmi, Z 67"><span class="z">67</span><span class="s">Ho</span><span class="n">holmi</span></button>
+          <button class="el lan" type="button" data-z="68" aria-pressed="false" style="grid-row:10;grid-column:14" aria-label="erbi, Z 68"><span class="z">68</span><span class="s">Er</span><span class="n">erbi</span></button>
+          <button class="el lan" type="button" data-z="69" aria-pressed="false" style="grid-row:10;grid-column:15" aria-label="tuli, Z 69"><span class="z">69</span><span class="s">Tm</span><span class="n">tuli</span></button>
+          <button class="el lan" type="button" data-z="70" aria-pressed="false" style="grid-row:10;grid-column:16" aria-label="iterbi, Z 70"><span class="z">70</span><span class="s">Yb</span><span class="n">iterbi</span></button>
+          <button class="el lan" type="button" data-z="71" aria-pressed="false" style="grid-row:10;grid-column:17" aria-label="luteci, Z 71"><span class="z">71</span><span class="s">Lu</span><span class="n">luteci</span></button>
+          <button class="el tra" type="button" data-z="72" aria-pressed="false" style="grid-row:7;grid-column:4" aria-label="hafni, Z 72"><span class="z">72</span><span class="s">Hf</span><span class="n">hafni</span></button>
+          <button class="el tra" type="button" data-z="73" aria-pressed="false" style="grid-row:7;grid-column:5" aria-label="tàntal, Z 73"><span class="z">73</span><span class="s">Ta</span><span class="n">tàntal</span></button>
+          <button class="el tra" type="button" data-z="74" aria-pressed="false" style="grid-row:7;grid-column:6" aria-label="tungstè, Z 74"><span class="z">74</span><span class="s">W</span><span class="n">tungstè</span></button>
+          <button class="el tra" type="button" data-z="75" aria-pressed="false" style="grid-row:7;grid-column:7" aria-label="reni, Z 75"><span class="z">75</span><span class="s">Re</span><span class="n">reni</span></button>
+          <button class="el tra" type="button" data-z="76" aria-pressed="false" style="grid-row:7;grid-column:8" aria-label="osmi, Z 76"><span class="z">76</span><span class="s">Os</span><span class="n">osmi</span></button>
+          <button class="el tra" type="button" data-z="77" aria-pressed="false" style="grid-row:7;grid-column:9" aria-label="iridi, Z 77"><span class="z">77</span><span class="s">Ir</span><span class="n">iridi</span></button>
+          <button class="el tra" type="button" data-z="78" aria-pressed="false" style="grid-row:7;grid-column:10" aria-label="platí, Z 78"><span class="z">78</span><span class="s">Pt</span><span class="n">platí</span></button>
+          <button class="el tra" type="button" data-z="79" aria-pressed="false" style="grid-row:7;grid-column:11" aria-label="or, Z 79"><span class="z">79</span><span class="s">Au</span><span class="n">or</span></button>
+          <button class="el tra" type="button" data-z="80" aria-pressed="false" style="grid-row:7;grid-column:12" aria-label="mercuri, Z 80"><span class="z">80</span><span class="s">Hg</span><span class="n">mercuri</span></button>
+          <button class="el pos" type="button" data-z="81" aria-pressed="false" style="grid-row:7;grid-column:13" aria-label="tal·li, Z 81"><span class="z">81</span><span class="s">Tl</span><span class="n">tal·li</span></button>
+          <button class="el pos" type="button" data-z="82" aria-pressed="false" style="grid-row:7;grid-column:14" aria-label="plom, Z 82"><span class="z">82</span><span class="s">Pb</span><span class="n">plom</span></button>
+          <button class="el pos" type="button" data-z="83" aria-pressed="false" style="grid-row:7;grid-column:15" aria-label="bismut, Z 83"><span class="z">83</span><span class="s">Bi</span><span class="n">bismut</span></button>
+          <button class="el pos" type="button" data-z="84" aria-pressed="false" style="grid-row:7;grid-column:16" aria-label="poloni, Z 84"><span class="z">84</span><span class="s">Po</span><span class="n">poloni</span></button>
+          <button class="el hal" type="button" data-z="85" aria-pressed="false" style="grid-row:7;grid-column:17" aria-label="àstat, Z 85"><span class="z">85</span><span class="s">At</span><span class="n">àstat</span></button>
+          <button class="el gas" type="button" data-z="86" aria-pressed="false" style="grid-row:7;grid-column:18" aria-label="radó, Z 86"><span class="z">86</span><span class="s">Rn</span><span class="n">radó</span></button>
+          <button class="el alc" type="button" data-z="87" aria-pressed="false" style="grid-row:8;grid-column:1" aria-label="franci, Z 87"><span class="z">87</span><span class="s">Fr</span><span class="n">franci</span></button>
+          <button class="el alt" type="button" data-z="88" aria-pressed="false" style="grid-row:8;grid-column:2" aria-label="radi, Z 88"><span class="z">88</span><span class="s">Ra</span><span class="n">radi</span></button>
+          <button class="el act" type="button" data-z="89" aria-pressed="false" style="grid-row:11;grid-column:3" aria-label="actini, Z 89"><span class="z">89</span><span class="s">Ac</span><span class="n">actini</span></button>
+          <button class="el act" type="button" data-z="90" aria-pressed="false" style="grid-row:11;grid-column:4" aria-label="tori, Z 90"><span class="z">90</span><span class="s">Th</span><span class="n">tori</span></button>
+          <button class="el act" type="button" data-z="91" aria-pressed="false" style="grid-row:11;grid-column:5" aria-label="protoactini, Z 91"><span class="z">91</span><span class="s">Pa</span><span class="n">protoactini</span></button>
+          <button class="el act" type="button" data-z="92" aria-pressed="false" style="grid-row:11;grid-column:6" aria-label="urani, Z 92"><span class="z">92</span><span class="s">U</span><span class="n">urani</span></button>
+          <button class="el act" type="button" data-z="93" aria-pressed="false" style="grid-row:11;grid-column:7" aria-label="neptuni, Z 93"><span class="z">93</span><span class="s">Np</span><span class="n">neptuni</span></button>
+          <button class="el act" type="button" data-z="94" aria-pressed="false" style="grid-row:11;grid-column:8" aria-label="plutoni, Z 94"><span class="z">94</span><span class="s">Pu</span><span class="n">plutoni</span></button>
+          <button class="el act" type="button" data-z="95" aria-pressed="false" style="grid-row:11;grid-column:9" aria-label="americi, Z 95"><span class="z">95</span><span class="s">Am</span><span class="n">americi</span></button>
+          <button class="el act" type="button" data-z="96" aria-pressed="false" style="grid-row:11;grid-column:10" aria-label="curi, Z 96"><span class="z">96</span><span class="s">Cm</span><span class="n">curi</span></button>
+          <button class="el act" type="button" data-z="97" aria-pressed="false" style="grid-row:11;grid-column:11" aria-label="berkeli, Z 97"><span class="z">97</span><span class="s">Bk</span><span class="n">berkeli</span></button>
+          <button class="el act" type="button" data-z="98" aria-pressed="false" style="grid-row:11;grid-column:12" aria-label="californi, Z 98"><span class="z">98</span><span class="s">Cf</span><span class="n">californi</span></button>
+          <button class="el act" type="button" data-z="99" aria-pressed="false" style="grid-row:11;grid-column:13" aria-label="einsteini, Z 99"><span class="z">99</span><span class="s">Es</span><span class="n">einsteini</span></button>
+          <button class="el act" type="button" data-z="100" aria-pressed="false" style="grid-row:11;grid-column:14" aria-label="fermi, Z 100"><span class="z">100</span><span class="s">Fm</span><span class="n">fermi</span></button>
+          <button class="el act" type="button" data-z="101" aria-pressed="false" style="grid-row:11;grid-column:15" aria-label="mendelevi, Z 101"><span class="z">101</span><span class="s">Md</span><span class="n">mendelevi</span></button>
+          <button class="el act" type="button" data-z="102" aria-pressed="false" style="grid-row:11;grid-column:16" aria-label="nobeli, Z 102"><span class="z">102</span><span class="s">No</span><span class="n">nobeli</span></button>
+          <button class="el act" type="button" data-z="103" aria-pressed="false" style="grid-row:11;grid-column:17" aria-label="lawrenci, Z 103"><span class="z">103</span><span class="s">Lr</span><span class="n">lawrenci</span></button>
+          <button class="el tra" type="button" data-z="104" aria-pressed="false" style="grid-row:8;grid-column:4" aria-label="rutherfordi, Z 104"><span class="z">104</span><span class="s">Rf</span><span class="n">rutherfordi</span></button>
+          <button class="el tra" type="button" data-z="105" aria-pressed="false" style="grid-row:8;grid-column:5" aria-label="dubni, Z 105"><span class="z">105</span><span class="s">Db</span><span class="n">dubni</span></button>
+          <button class="el tra" type="button" data-z="106" aria-pressed="false" style="grid-row:8;grid-column:6" aria-label="seaborgi, Z 106"><span class="z">106</span><span class="s">Sg</span><span class="n">seaborgi</span></button>
+          <button class="el tra" type="button" data-z="107" aria-pressed="false" style="grid-row:8;grid-column:7" aria-label="bohri, Z 107"><span class="z">107</span><span class="s">Bh</span><span class="n">bohri</span></button>
+          <button class="el tra" type="button" data-z="108" aria-pressed="false" style="grid-row:8;grid-column:8" aria-label="hassi, Z 108"><span class="z">108</span><span class="s">Hs</span><span class="n">hassi</span></button>
+          <button class="el tra" type="button" data-z="109" aria-pressed="false" style="grid-row:8;grid-column:9" aria-label="meitneri, Z 109"><span class="z">109</span><span class="s">Mt</span><span class="n">meitneri</span></button>
+          <button class="el tra" type="button" data-z="110" aria-pressed="false" style="grid-row:8;grid-column:10" aria-label="darmstadti, Z 110"><span class="z">110</span><span class="s">Ds</span><span class="n">darmstadti</span></button>
+          <button class="el tra" type="button" data-z="111" aria-pressed="false" style="grid-row:8;grid-column:11" aria-label="roentgeni, Z 111"><span class="z">111</span><span class="s">Rg</span><span class="n">roentgeni</span></button>
+          <button class="el tra" type="button" data-z="112" aria-pressed="false" style="grid-row:8;grid-column:12" aria-label="copernici, Z 112"><span class="z">112</span><span class="s">Cn</span><span class="n">copernici</span></button>
+          <button class="el pos" type="button" data-z="113" aria-pressed="false" style="grid-row:8;grid-column:13" aria-label="nihoni, Z 113"><span class="z">113</span><span class="s">Nh</span><span class="n">nihoni</span></button>
+          <button class="el pos" type="button" data-z="114" aria-pressed="false" style="grid-row:8;grid-column:14" aria-label="flerovi, Z 114"><span class="z">114</span><span class="s">Fl</span><span class="n">flerovi</span></button>
+          <button class="el pos" type="button" data-z="115" aria-pressed="false" style="grid-row:8;grid-column:15" aria-label="moscovi, Z 115"><span class="z">115</span><span class="s">Mc</span><span class="n">moscovi</span></button>
+          <button class="el pos" type="button" data-z="116" aria-pressed="false" style="grid-row:8;grid-column:16" aria-label="livermori, Z 116"><span class="z">116</span><span class="s">Lv</span><span class="n">livermori</span></button>
+          <button class="el hal" type="button" data-z="117" aria-pressed="false" style="grid-row:8;grid-column:17" aria-label="tennes, Z 117"><span class="z">117</span><span class="s">Ts</span><span class="n">tennes</span></button>
+          <button class="el gas" type="button" data-z="118" aria-pressed="false" style="grid-row:8;grid-column:18" aria-label="oganessó, Z 118"><span class="z">118</span><span class="s">Og</span><span class="n">oganessó</span></button>
+          <div class="marca-f" style="grid-row:7;grid-column:3">57–71</div>
+          <div class="marca-f" style="grid-row:8;grid-column:3">89–103</div>
+          <div class="separador-f" style="grid-row:9"></div>
+          <div class="marca-f" style="grid-row:10;grid-column:1 / 3">Lantànids</div>
+          <div class="marca-f" style="grid-row:11;grid-column:1 / 3">Actínids</div>
+          <div class="resum" id="resum" aria-live="polite">
+            <div class="gran"><small>1</small>H</div>
+            <div class="nom-resum">Hidrogen</div>
+            <div class="cfg-resum">1s¹</div>
+            <div class="fam-resum">No metall · toca qualsevol element</div>
+          </div>
+        </div>
+      </div>
+      <div class="llegenda" id="llegenda">
+        <span><i style="background:var(--f-alc)"></i>Metall alcalí</span>
+        <span><i style="background:var(--f-alt)"></i>Metall alcalinoterri</span>
+        <span><i style="background:var(--f-tra)"></i>Metall de transició</span>
+        <span><i style="background:var(--f-lan)"></i>Lantànid</span>
+        <span><i style="background:var(--f-act)"></i>Actínid</span>
+        <span><i style="background:var(--f-pos)"></i>Metall del bloc p</span>
+        <span><i style="background:var(--f-sem)"></i>Semimetall</span>
+        <span><i style="background:var(--f-nom)"></i>No metall</span>
+        <span><i style="background:var(--f-hal)"></i>Halogen</span>
+        <span><i style="background:var(--f-gas)"></i>Gas noble</span>
+      </div>
+      <article class="fitxa" id="fitxa" aria-live="polite">
+        <p>Toca un element de la taula per veure'n la fitxa.</p>
+      </article>
+    </section>
+
+    <section id="vista-missions" role="tabpanel" aria-labelledby="tab-missions" hidden>
+      <div class="reptes">
+        <div id="missions"></div>
+        <aside class="panell" id="panell"></aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="peu">
+    <p><span class="peu-marca">NEXÈNCIA</span> · Preguntes que importen</p>
+    <p>© 2026 Concepción Gavilán · Tots els drets reservats</p>
+  </footer>
+</div>
+
+<script>
+/* dades-elements.js */
+/* MISSIÓ ÀTOM — Dades dels 118 elements
+   Format de cada línia:
+   Z | símbol | nom | massa atòmica (u; entre [] = isòtop més estable) | electronegativitat (Pauling, buit = sense dada)
+     | estat a 25 °C (s, l, g, ? = desconegut) | família | aplicacions quotidianes | dada destacada (opcional)
+   Famílies: alc = metall alcalí, alt = alcalinoterri, tra = metall de transició, lan = lantànid, act = actínid,
+             pos = metall del bloc p, sem = semimetall, nom = no metall, hal = halogen, gas = gas noble
+   Per modificar un element, edita només la seva línia. */
+window.MA_DADES_TEXT = `
+1|H|hidrogen|1.008|2.20|g|nom|Producció d'amoníac per a fertilitzants, piles de combustible, refinat de combustibles.|És l'element més abundant de l'univers. Molt inflamable: barrejat amb aire pot explotar.
+2|He|heli|4.0026||g|gas|Globus i dirigibles, refrigeració d'imants de ressonància magnètica, mescles de busseig profund.|No és inflamable i és menys dens que l'aire.
+3|Li|liti|6.94|0.98|s|alc|Bateries de mòbils, portàtils i cotxes elèctrics; medicaments.|És el metall menys dens: sura sobre l'oli.
+4|Be|beril·li|9.0122|1.57|s|alt|Finestres de raigs X, aliatges lleugers per a satèl·lits.|La pols i els vapors són tòxics.
+5|B|bor|10.81|2.04|s|sem|Vidre resistent a la calor (vidre borosilicat), detergents, fibres de reforç.|
+6|C|carboni|12.011|2.55|s|nom|Mines de llapis (grafit), joies (diamant), acer, totes les molècules dels éssers vius i dels plàstics.|Pot formar 4 enllaços: base de la química orgànica.
+7|N|nitrogen|14.007|3.04|g|nom|Fertilitzants, conservació d'aliments envasats, nitrogen líquid per congelar.|Forma el 78 % de l'aire.
+8|O|oxigen|15.999|3.44|g|nom|Respiració, hospitals (oxigenoteràpia), soldadura, combustions.|Forma el 21 % de l'aire. Afavoreix molt les combustions.
+9|F|fluor|18.998|3.98|g|hal|Pastes de dents (com a ió fluorur), paelles antiadherents, gasos refrigerants.|És l'element més electronegatiu. El gas F₂ és extremadament tòxic.
+10|Ne|neó|20.180||g|gas|Rètols lluminosos de color vermell-taronja, làsers d'heli-neó.|
+11|Na|sodi|22.990|0.93|s|alc|Sal de cuina (NaCl), llums de carrer grogues, bicarbonat.|Es talla amb un ganivet i es guarda en oli perquè reacciona amb l'aire i l'aigua.
+12|Mg|magnesi|24.305|1.31|s|alt|Aliatges lleugers (bicicletes, portàtils), coets d'artifici, clorofil·la de les plantes.|Crema amb una llum blanca molt intensa.
+13|Al|alumini|26.982|1.61|s|pos|Llaunes, paper d'alumini, finestres, avions.|Es protegeix amb una capa fina d'òxid que impedeix que es continuï corroint.
+14|Si|silici|28.085|1.90|s|sem|Xips electrònics, plaques solars, vidre (com a sílice, SiO₂).|
+15|P|fòsfor|30.974|2.19|s|nom|Fertilitzants, llumins, ADN i ossos (com a fosfat).|El fòsfor blanc s'encén sol a l'aire.
+16|S|sofre|32.06|2.58|s|nom|Àcid sulfúric (indústria), vulcanització del cautxú, fungicides.|
+17|Cl|clor|35.45|3.16|g|hal|Potabilització de l'aigua, lleixiu, PVC, sal de cuina (com a clorur).|El gas Cl₂ és tòxic i irritant.
+18|Ar|argó|39.95||g|gas|Interior de bombetes, soldadura en atmosfera protectora, finestres de doble vidre.|És el gas noble més abundant a l'aire (prop de l'1 %).
+19|K|potassi|39.098|0.82|s|alc|Fertilitzants, sals baixes en sodi, impuls nerviós (com a ió K⁺).|Reacciona amb l'aigua amb més violència que el sodi; la flama és lila.
+20|Ca|calci|40.078|1.00|s|alt|Ossos i dents, ciment, guix, marbre i pedra calcària (com a carbonat).|
+21|Sc|escandi|44.956|1.36|s|tra|Aliatges d'alumini per a bicicletes i bats de beisbol, làmpades d'estadi.|
+22|Ti|titani|47.867|1.54|s|tra|Pròtesis i implants dentals, avions, pintura blanca i cremes solars (TiO₂).|Resistent, lleuger i compatible amb el cos.
+23|V|vanadi|50.942|1.63|s|tra|Acers resistents per a eines (claus anglesas), bateries de flux.|
+24|Cr|crom|51.996|1.66|s|tra|Acer inoxidable, cromats brillants d'aixetes i motos.|La seva configuració és una excepció a l'ordre d'Aufbau.
+25|Mn|manganès|54.938|1.55|s|tra|Acers, piles alcalines (MnO₂).|
+26|Fe|ferro|55.845|1.83|s|tra|Acer per a edificis, cotxes i eines; hemoglobina de la sang.|És el metall més utilitzat. A l'aire humit es rovella.
+27|Co|cobalt|58.933|1.88|s|tra|Bateries de liti, pigment blau del vidre i la ceràmica, vitamina B12.|
+28|Ni|níquel|58.693|1.91|s|tra|Monedes, acer inoxidable, bateries recarregables.|Pot causar al·lèrgia de contacte.
+29|Cu|coure|63.546|1.90|s|tra|Cables elèctrics, canonades, monedes, bronze i llautó.|Excepció d'Aufbau: 3d¹⁰ 4s¹.
+30|Zn|zinc|65.38|1.65|s|tra|Galvanitzat (protegeix el ferro), piles, cremes solars (ZnO).|
+31|Ga|gal·li|69.723|1.81|s|pos|LEDs i semiconductors (GaAs, GaN).|Es fon a 30 °C: es pot fondre a la mà.
+32|Ge|germani|72.630|2.01|s|sem|Fibra òptica, lents d'infraroig, electrònica.|
+33|As|arsènic|74.922|2.18|s|sem|Semiconductors (GaAs), antigament pesticides.|Els seus compostos són molt tòxics.
+34|Se|seleni|78.971|2.55|s|nom|Cèl·lules fotoelèctriques, vidre, xampús anticaspa; nutrient en petites quantitats.|
+35|Br|brom|79.904|2.96|l|hal|Retardants de flama, desinfecció de piscines.|Un dels dos elements líquids a 25 °C. Corrosiu i tòxic.
+36|Kr|criptó|83.798||g|gas|Flaixos fotogràfics, làmpades d'alt rendiment.|
+37|Rb|rubidi|85.468|0.82|s|alc|Rellotges atòmics, recerca.|Reacciona amb l'aigua de manera explosiva.
+38|Sr|estronci|87.62|0.95|s|alt|Color vermell dels focs artificials.|L'estronci-90 radioactiu substitueix el calci als ossos.
+39|Y|itri|88.906|1.22|s|tra|LEDs blancs, làsers, superconductors.|
+40|Zr|zirconi|91.224|1.33|s|tra|Fundes de combustible nuclear, joies i pròtesis dentals (zircònia).|
+41|Nb|niobi|92.906|1.6|s|tra|Imants superconductors (ressonància magnètica), acers.|Excepció d'Aufbau: 4d⁴ 5s¹.
+42|Mo|molibdè|95.95|2.16|s|tra|Acers d'alta resistència, lubricants, enzims (nutrient).|Excepció d'Aufbau: 4d⁵ 5s¹.
+43|Tc|tecneci|[98]|1.9|s|tra|Diagnòstic mèdic per imatge (tecneci-99m).|El primer element obtingut artificialment. Tots els seus isòtops són radioactius.
+44|Ru|ruteni|101.07|2.2|s|tra|Contactes elèctrics, discs durs, catalitzadors.|
+45|Rh|rodi|102.91|2.28|s|tra|Catalitzadors dels cotxes, recobriment de joies.|
+46|Pd|pal·ladi|106.42|2.20|s|tra|Catalitzadors dels cotxes, electrònica, odontologia.|Excepció d'Aufbau: 4d¹⁰ sense electrons 5s.
+47|Ag|plata|107.87|1.93|s|tra|Joies, miralls, contactes elèctrics, apòsits antibacterians.|És el millor conductor elèctric.
+48|Cd|cadmi|112.41|1.69|s|tra|Antigues bateries Ni-Cd, pigments.|Tòxic; s'ha substituït en molts usos.
+49|In|indi|114.82|1.78|s|pos|Pantalles tàctils (òxid d'indi i estany).|
+50|Sn|estany|118.71|1.96|s|pos|Soldadures d'electrònica, bronze, llaunes de conserva (recobriment).|
+51|Sb|antimoni|121.76|2.05|s|sem|Retardants de flama, bateries de plom.|
+52|Te|tel·luri|127.60|2.1|s|sem|Plaques solars de capa fina, discs regravables.|
+53|I|iode|126.90|2.66|s|hal|Antisèptics (povidona iodada), sal iodada, contrast mèdic.|Necessari per a la glàndula tiroide. Sublima: passa de sòlid a gas violeta.
+54|Xe|xenó|131.29|2.6|g|gas|Fars de cotxe, anestèsia, motors iònics de satèl·lits.|
+55|Cs|cesi|132.91|0.79|s|alc|Rellotges atòmics (defineixen el segon), perforació petroliera.|Un dels metalls més reactius.
+56|Ba|bari|137.33|0.89|s|alt|Contrast per a radiografies digestives (BaSO₄), color verd dels focs artificials.|
+57|La|lantani|138.91|1.10|s|lan|Lents de càmera, bateries de cotxes híbrids, pedra d'encenedor.|Excepció d'Aufbau: 5d¹ en lloc de 4f¹.
+58|Ce|ceri|140.12|1.12|s|lan|Pedra d'encenedor, polit de vidre, catalitzadors.|
+59|Pr|praseodimi|140.91|1.13|s|lan|Imants, vidre groc d'ulleres de soldador.|
+60|Nd|neodimi|144.24|1.14|s|lan|Imants molt potents: auriculars, motors elèctrics, aerogeneradors.|
+61|Pm|prometi|[145]|1.13|s|lan|Bateries nuclears petites, pintura lluminosa.|Tots els seus isòtops són radioactius.
+62|Sm|samari|150.36|1.17|s|lan|Imants resistents a la calor, tractament de càncer d'os.|
+63|Eu|europi|151.96|1.2|s|lan|Color vermell de pantalles i LEDs, marques de seguretat dels bitllets d'euro.|
+64|Gd|gadolini|157.25|1.20|s|lan|Contrast per a ressonància magnètica.|Excepció d'Aufbau: 4f⁷ 5d¹ (subnivell f semiple).
+65|Tb|terbi|158.93|1.1|s|lan|Color verd de pantalles, dispositius magnètics.|
+66|Dy|disprosi|162.50|1.22|s|lan|Imants de motors de cotxes elèctrics.|
+67|Ho|holmi|164.93|1.23|s|lan|Làsers mèdics, imants.|
+68|Er|erbi|167.26|1.24|s|lan|Amplificadors de fibra òptica (internet), vidre rosat.|
+69|Tm|tuli|168.93|1.25|s|lan|Aparells portàtils de raigs X, làsers.|
+70|Yb|iterbi|173.05|1.1|s|lan|Rellotges atòmics, làsers.|
+71|Lu|luteci|174.97|1.27|s|lan|Catalitzadors, diagnòstic mèdic (PET).|
+72|Hf|hafni|178.49|1.3|s|tra|Barres de control de reactors nuclears, xips.|
+73|Ta|tàntal|180.95|1.5|s|tra|Condensadors de mòbils, implants.|S'extreu del coltan.
+74|W|tungstè|183.84|2.36|s|tra|Filaments de bombetes antigues, eines de tall, broques.|És el metall amb el punt de fusió més alt.
+75|Re|reni|186.21|1.9|s|tra|Motors de reacció, catalitzadors.|
+76|Os|osmi|190.23|2.2|s|tra|Puntes de plomes estilogràfiques, contactes.|És l'element més dens.
+77|Ir|iridi|192.22|2.20|s|tra|Bugies de cotxe, contactes, radioteràpia.|
+78|Pt|platí|195.08|2.28|s|tra|Catalitzadors dels cotxes, joies, medicaments contra el càncer (cisplatí).|Excepció d'Aufbau: 5d⁹ 6s¹.
+79|Au|or|196.97|2.54|s|tra|Joies, contactes electrònics, reserves monetàries.|No s'oxida. Excepció d'Aufbau: 5d¹⁰ 6s¹.
+80|Hg|mercuri|200.59|2.00|l|tra|Antics termòmetres i baròmetres, làmpades fluorescents.|Únic metall líquid a 25 °C. Els seus vapors són tòxics.
+81|Tl|tal·li|204.38|1.62|s|pos|Diagnòstic cardíac, electrònica.|Molt tòxic.
+82|Pb|plom|207.2|2.33|s|pos|Bateries de cotxe, protecció contra raigs X.|Tòxic: s'ha retirat de canonades, pintures i gasolina.
+83|Bi|bismut|208.98|2.02|s|pos|Medicaments per a l'estómac, aliatges de baix punt de fusió.|
+84|Po|poloni|[209]|2.0|s|pos|Eliminadors d'electricitat estàtica.|Molt radioactiu.
+85|At|àstat|[210]|2.2|s|hal|Recerca en medicina nuclear.|Molt radioactiu; se n'han obtingut quantitats ínfimes.
+86|Rn|radó|[222]|2.2|g|gas|Recerca; es mesura a edificis per prevenir riscos.|Gas radioactiu que surt d'alguns terrenys granítics.
+87|Fr|franci|[223]|0.7|s|alc|Només recerca.|Molt radioactiu; vida molt curta.
+88|Ra|radi|[226]|0.9|s|alt|Antigament pintura lluminosa de rellotges; radioteràpia.|Radioactiu. Descobert per Marie i Pierre Curie.
+89|Ac|actini|[227]|1.1|s|act|Radioteràpia dirigida contra el càncer.|Excepció d'Aufbau: 6d¹ en lloc de 5f¹.
+90|Th|tori|232.04|1.3|s|act|Combustible nuclear en estudi, antigues camises de llums de gas.|Excepció d'Aufbau: 6d² sense electrons 5f.
+91|Pa|protoactini|231.04|1.5|s|act|Només recerca.|Excepció d'Aufbau: 5f² 6d¹.
+92|U|urani|238.03|1.38|s|act|Combustible de centrals nuclears.|Excepció d'Aufbau: 5f³ 6d¹.
+93|Np|neptuni|[237]|1.36|s|act|Detectors de neutrons, recerca.|Excepció d'Aufbau: 5f⁴ 6d¹.
+94|Pu|plutoni|[244]|1.28|s|act|Generadors elèctrics de sondes espacials, combustible nuclear.|Molt radiotòxic.
+95|Am|americi|[243]|1.13|s|act|Detectors de fum domèstics.|
+96|Cm|curi|[247]|1.28|s|act|Fonts d'energia per a sondes espacials, recerca.|Excepció d'Aufbau: 5f⁷ 6d¹ (subnivell f semiple).
+97|Bk|berkeli|[247]||s|act|Només recerca (síntesi d'elements més pesants).|
+98|Cf|californi|[251]||s|act|Fonts de neutrons per detectar metalls i or.|
+99|Es|einsteini|[252]||s|act|Només recerca.|Descobert a les restes de la primera bomba d'hidrogen.
+100|Fm|fermi|[257]||?|act|Només recerca.|
+101|Md|mendelevi|[258]||?|act|Només recerca.|Porta el nom de Mendeléiev, autor de la primera taula periòdica.
+102|No|nobeli|[259]||?|act|Només recerca.|
+103|Lr|lawrenci|[266]||?|act|Només recerca.|Excepció: 7p¹ en lloc de 6d¹.
+104|Rf|rutherfordi|[267]||?|tra|Només recerca.|Element sintètic de vida molt curta.
+105|Db|dubni|[268]||?|tra|Només recerca.|Element sintètic de vida molt curta.
+106|Sg|seaborgi|[269]||?|tra|Només recerca.|Element sintètic de vida molt curta.
+107|Bh|bohri|[270]||?|tra|Només recerca.|Element sintètic de vida molt curta.
+108|Hs|hassi|[269]||?|tra|Només recerca.|Element sintètic de vida molt curta.
+109|Mt|meitneri|[278]||?|tra|Només recerca.|Porta el nom de la física Lise Meitner.
+110|Ds|darmstadti|[281]||?|tra|Només recerca.|Element sintètic de vida molt curta.
+111|Rg|roentgeni|[282]||?|tra|Només recerca.|Porta el nom de Röntgen, descobridor dels raigs X.
+112|Cn|copernici|[285]||?|tra|Només recerca.|Element sintètic de vida molt curta.
+113|Nh|nihoni|[286]||?|pos|Només recerca.|Primer element descobert al Japó.
+114|Fl|flerovi|[289]||?|pos|Només recerca.|Element sintètic de vida molt curta.
+115|Mc|moscovi|[290]||?|pos|Només recerca.|Element sintètic de vida molt curta.
+116|Lv|livermori|[293]||?|pos|Només recerca.|Element sintètic de vida molt curta.
+117|Ts|tennes|[294]||?|hal|Només recerca.|Se n'han obtingut pocs àtoms; propietats predites.
+118|Og|oganessó|[294]||?|gas|Només recerca.|Element amb el nombre atòmic més alt conegut. Propietats predites.
+`;
+
+</script>
+<script>
+/* ciencia.js */
+/* MISSIÓ ÀTOM — Lògica científica
+   Posició a la taula, configuració electrònica (Aufbau + excepcions),
+   diagrames d'orbitals (Pauli i Hund) i model de capes.
+   No depèn de la interfície: es pot provar per separat. */
+(function () {
+  'use strict';
+
+  var FAMILIES = {
+    alc: { nom: 'Metall alcalí', propietats: 'Metalls tous i lleugers, molt reactius. Tenen 1 electró a la capa externa i el cedeixen fàcilment formant ions +1. Reaccionen amb l\'aigua produint hidrogen i un hidròxid. La reactivitat augmenta en baixar pel grup.' },
+    alt: { nom: 'Metall alcalinoterri', propietats: 'Metalls reactius, menys que els alcalins. Tenen 2 electrons a la capa externa i formen ions +2. Molts dels seus compostos formen roques i minerals.' },
+    tra: { nom: 'Metall de transició', propietats: 'Metalls durs, bons conductors de la calor i l\'electricitat. Omplen subnivells d. Sovint formen ions amb càrregues diferents i compostos de colors.' },
+    lan: { nom: 'Lantànid', propietats: 'Metalls del bloc f (omplen el subnivell 4f). Químicament molt semblants entre ells. Imprescindibles en imants, pantalles i làsers.' },
+    act: { nom: 'Actínid', propietats: 'Metalls del bloc f (omplen el subnivell 5f). Tots són radioactius. A partir de l\'urani, gairebé tots són sintètics.' },
+    pos: { nom: 'Metall del bloc p', propietats: 'Metalls més tous i amb punts de fusió més baixos que els de transició. Tenen electrons de valència en subnivells s i p.' },
+    sem: { nom: 'Semimetall', propietats: 'Propietats intermèdies entre metalls i no metalls. Molts són semiconductors: condueixen l\'electricitat de manera controlable.' },
+    nom: { nom: 'No metall', propietats: 'Mals conductors, sovint gasos o sòlids fràgils. Tenen tendència a captar o compartir electrons. Formen enllaços covalents entre ells.' },
+    hal: { nom: 'Halogen', propietats: 'No metalls molt reactius. Tenen 7 electrons a la capa externa i tendeixen a captar-ne 1 per formar ions −1. La reactivitat disminueix en baixar pel grup.' },
+    gas: { nom: 'Gas noble', propietats: 'Tenen la capa externa completa (s² p⁶; l\'heli, 1s²). Per això gairebé no reaccionen. Són gasos monoatòmics.' }
+  };
+
+  var ESTATS = { s: 'Sòlid', l: 'Líquid', g: 'Gas', '?': 'Desconegut (vida massa curta per mesurar-lo)' };
+
+  // Ordre d'ompliment (regla de Madelung / Aufbau)
+  var ORDRE = ['1s', '2s', '2p', '3s', '3p', '4s', '3d', '4p', '5s', '4d', '5p', '6s', '4f', '5d', '6p', '7s', '5f', '6d', '7p'];
+  var CAPACITAT = { s: 2, p: 6, d: 10, f: 14 };
+  var CAIXES = { s: 1, p: 3, d: 5, f: 7 };
+  var GASOS_NOBLES = [[86, 'Rn'], [54, 'Xe'], [36, 'Kr'], [18, 'Ar'], [10, 'Ne'], [2, 'He']];
+
+  // Configuracions experimentals que no segueixen l'ordre d'Aufbau.
+  // Es donen com a nucli de gas noble + subnivells externs.
+  var EXCEPCIONS = {
+    24: { cfg: '[Ar] 4s1 3d5', motiu: 'Un electró 4s passa al 3d: el subnivell d semiple (d⁵) és més estable.' },
+    29: { cfg: '[Ar] 4s1 3d10', motiu: 'Un electró 4s passa al 3d: el subnivell d ple (d¹⁰) és més estable.' },
+    41: { cfg: '[Kr] 5s1 4d4', motiu: 'Els nivells 5s i 4d tenen energies molt properes; un electró 5s passa al 4d.' },
+    42: { cfg: '[Kr] 5s1 4d5', motiu: 'Un electró 5s passa al 4d: el subnivell d semiple (d⁵) és més estable.' },
+    44: { cfg: '[Kr] 5s1 4d7', motiu: 'Els nivells 5s i 4d tenen energies molt properes; un electró 5s passa al 4d.' },
+    45: { cfg: '[Kr] 5s1 4d8', motiu: 'Els nivells 5s i 4d tenen energies molt properes; un electró 5s passa al 4d.' },
+    46: { cfg: '[Kr] 4d10', motiu: 'Els dos electrons 5s passen al 4d: el subnivell d queda ple (d¹⁰).' },
+    47: { cfg: '[Kr] 5s1 4d10', motiu: 'Un electró 5s passa al 4d: el subnivell d ple (d¹⁰) és més estable.' },
+    57: { cfg: '[Xe] 6s2 5d1', motiu: 'L\'electró que s\'esperaria al 4f ocupa el 5d.' },
+    58: { cfg: '[Xe] 6s2 4f1 5d1', motiu: 'Un electró ocupa el 5d en lloc del 4f.' },
+    64: { cfg: '[Xe] 6s2 4f7 5d1', motiu: 'Un electró ocupa el 5d i el subnivell 4f queda semiple (f⁷), més estable.' },
+    78: { cfg: '[Xe] 6s1 4f14 5d9', motiu: 'Un electró 6s passa al 5d.' },
+    79: { cfg: '[Xe] 6s1 4f14 5d10', motiu: 'Un electró 6s passa al 5d: el subnivell d ple (d¹⁰) és més estable.' },
+    89: { cfg: '[Rn] 7s2 6d1', motiu: 'L\'electró que s\'esperaria al 5f ocupa el 6d.' },
+    90: { cfg: '[Rn] 7s2 6d2', motiu: 'Els electrons que s\'esperarien al 5f ocupen el 6d.' },
+    91: { cfg: '[Rn] 7s2 5f2 6d1', motiu: 'Un electró ocupa el 6d en lloc del 5f.' },
+    92: { cfg: '[Rn] 7s2 5f3 6d1', motiu: 'Un electró ocupa el 6d en lloc del 5f.' },
+    93: { cfg: '[Rn] 7s2 5f4 6d1', motiu: 'Un electró ocupa el 6d en lloc del 5f.' },
+    96: { cfg: '[Rn] 7s2 5f7 6d1', motiu: 'Un electró ocupa el 6d i el subnivell 5f queda semiple (f⁷), més estable.' },
+    103: { cfg: '[Rn] 7s2 5f14 7p1', motiu: 'Per efectes relativistes, l\'últim electró ocupa el 7p en lloc del 6d.' }
+  };
+
+  // Nombre màssic de l'isòtop més abundant a la natura (per calcular els neutrons).
+  // Per als elements que no hi són, la fitxa indica una aproximació a partir de la massa atòmica.
+  var ISOTOP = {
+    1: 1, 2: 4, 3: 7, 4: 9, 5: 11, 6: 12, 7: 14, 8: 16, 9: 19, 10: 20, 11: 23, 12: 24, 13: 27, 14: 28, 15: 31,
+    16: 32, 17: 35, 18: 40, 19: 39, 20: 40, 21: 45, 22: 48, 23: 51, 24: 52, 25: 55, 26: 56, 27: 59, 28: 58,
+    29: 63, 30: 64, 31: 69, 32: 74, 33: 75, 34: 80, 35: 79, 36: 84, 37: 85, 38: 88, 39: 89, 40: 90, 41: 93,
+    42: 98, 44: 102, 45: 103, 46: 106, 47: 107, 48: 114, 49: 115, 50: 120, 51: 121, 52: 130, 53: 127, 54: 132,
+    55: 133, 56: 138, 57: 139, 58: 140, 74: 184, 78: 195, 79: 197, 80: 202, 81: 205, 82: 208, 83: 209, 90: 232, 92: 238
+  };
+
+  var SUP = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '+': '⁺', '-': '⁻' };
+  function superindex(n) { return String(n).split('').map(function (c) { return SUP[c] || c; }).join(''); }
+
+  // ---------- Dades ----------
+  function llegirDades(text) {
+    var llista = [];
+    text.split('\n').forEach(function (linia) {
+      linia = linia.trim();
+      if (!linia || !/^\d/.test(linia)) return;
+      var p = linia.split('|');
+      llista.push({
+        z: parseInt(p[0], 10),
+        simbol: p[1],
+        nom: p[2],
+        massa: p[3],
+        en: p[4] ? parseFloat(p[4]) : null,
+        estat: p[5],
+        familia: p[6],
+        aplicacions: p[7] || '',
+        dada: p[8] || ''
+      });
+    });
+    return llista;
+  }
+
+  // ---------- Posició a la taula ----------
+  // Retorna fila i columna de la quadrícula (files 1-7 i, per al bloc f, files 9 i 10)
+  function posicio(z) {
+    var periode, grup = null, fila, col;
+    if (z <= 2) { periode = 1; grup = z === 1 ? 1 : 18; }
+    else if (z <= 10) { periode = 2; grup = z <= 4 ? z - 2 : z + 8; }
+    else if (z <= 18) { periode = 3; grup = z <= 12 ? z - 10 : z; }
+    else if (z <= 36) { periode = 4; grup = z - 18; }
+    else if (z <= 54) { periode = 5; grup = z - 36; }
+    else if (z <= 86) { periode = 6; if (z <= 56) grup = z - 54; else if (z >= 72) grup = z - 68; }
+    else { periode = 7; if (z <= 88) grup = z - 86; else if (z >= 104) grup = z - 100; }
+
+    if (grup === null) { // bloc f (57-71, 89-103)
+      fila = periode === 6 ? 9 : 10;
+      col = (periode === 6 ? z - 57 : z - 89) + 3;
+    } else { fila = periode; col = grup; }
+    var bloc = grup === null ? 'f' : (grup <= 2 || z === 2 ? 's' : (grup <= 12 ? 'd' : 'p'));
+    return { periode: periode, grup: grup, fila: fila, col: col, bloc: bloc };
+  }
+
+  // ---------- Configuració electrònica ----------
+  function parseSubnivell(t) { // "3d10" -> {n:3, l:'d', e:10}
+    var m = /^(\d)([spdf])(\d+)$/.exec(t);
+    return { n: +m[1], l: m[2], e: +m[3] };
+  }
+
+  function aufbau(z) {
+    var resta = z, cfg = [];
+    for (var i = 0; i < ORDRE.length && resta > 0; i++) {
+      var sub = ORDRE[i], cap = CAPACITAT[sub[1]], e = Math.min(cap, resta);
+      cfg.push({ n: +sub[0], l: sub[1], e: e });
+      resta -= e;
+    }
+    return cfg;
+  }
+
+  function configuracio(z) {
+    var exc = EXCEPCIONS[z];
+    if (!exc) return { subnivells: aufbau(z), excepcio: null };
+    var parts = exc.cfg.split(' ');
+    var nucli = { Ar: 18, Kr: 36, Xe: 54, Rn: 86 }[parts[0].replace(/[\[\]]/g, '')];
+    var cfg = aufbau(nucli).concat(parts.slice(1).map(parseSubnivell));
+    var suma = cfg.reduce(function (a, s) { return a + s.e; }, 0);
+    if (suma !== z) throw new Error('Configuració incoherent per Z=' + z);
+    return { subnivells: cfg, excepcio: exc.motiu };
+  }
+
+  function textSubnivells(llista) {
+    return llista.map(function (s) { return s.n + s.l + superindex(s.e); }).join(' ');
+  }
+
+  function abreujada(z, subnivells) {
+    for (var i = 0; i < GASOS_NOBLES.length; i++) {
+      var ng = GASOS_NOBLES[i];
+      if (ng[0] < z) {
+        var nucli = aufbau(ng[0]).map(function (s) { return s.n + s.l; });
+        var resta = subnivells.filter(function (s) { return nucli.indexOf(s.n + s.l) === -1; });
+        return '[' + ng[1] + '] ' + textSubnivells(resta);
+      }
+    }
+    return textSubnivells(subnivells);
+  }
+
+  // Electrons per capa (nivell n) — model de capes simplificat
+  function capes(subnivells) {
+    var c = [];
+    subnivells.forEach(function (s) { c[s.n - 1] = (c[s.n - 1] || 0) + s.e; });
+    for (var i = 0; i < c.length; i++) c[i] = c[i] || 0;
+    return c;
+  }
+
+  // Ompliment de caixes: Pauli (màx. 2 per caixa, espins oposats) i Hund (primer una fletxa ↑ a cada caixa)
+  function caixes(sub) {
+    var n = CAIXES[sub.l], out = [];
+    for (var i = 0; i < n; i++) {
+      var amunt = sub.e > i ? 1 : 0;
+      var avall = sub.e > n + i ? 1 : 0;
+      out.push((amunt ? '↑' : '') + (avall ? '↓' : ''));
+    }
+    return out;
+  }
+
+  var ORDRE_L = { s: 0, p: 1, d: 2, f: 3 };
+  function perNivells(subnivells) {
+    return subnivells.slice().sort(function (a, b) { return a.n - b.n || ORDRE_L[a.l] - ORDRE_L[b.l]; });
+  }
+
+  function electronsDesaparellats(subnivells) {
+    return subnivells.reduce(function (t, s) {
+      return t + caixes(s).filter(function (c) { return c.length === 1; }).length;
+    }, 0);
+  }
+
+  // ---------- Construcció de l'objecte element ----------
+  function construir(dades) {
+    var perZ = {}, perSimbol = {};
+    dades.forEach(function (d) {
+      var pos = posicio(d.z);
+      var conf = configuracio(d.z);
+      var c = capes(conf.subnivells);
+      d.posicio = pos;
+      d.config = conf.subnivells;
+      d.excepcio = conf.excepcio;
+      d.predita = d.z >= 104;
+      d.configText = textSubnivells(conf.subnivells);
+      d.configAbreujada = abreujada(d.z, conf.subnivells);
+      d.capes = c;
+      d.nivellExtern = c.length;
+      d.electronsExterns = c[c.length - 1];
+      d.desaparellats = electronsDesaparellats(conf.subnivells);
+      d.familiaInfo = FAMILIES[d.familia];
+      d.estatText = ESTATS[d.estat];
+      d.nombreMassic = ISOTOP[d.z] || null;
+      if (!d.nombreMassic) {
+        d.massicAprox = Math.round(parseFloat(String(d.massa).replace(/[\[\]]/g, '')));
+      }
+      perZ[d.z] = d; perSimbol[d.simbol] = d;
+    });
+    return { llista: dades, perZ: perZ, perSimbol: perSimbol };
+  }
+
+  var dades = llegirDades(window.MA_DADES_TEXT || '');
+  window.MA_CIENCIA = {
+    FAMILIES: FAMILIES,
+    taula: construir(dades),
+    caixes: caixes,
+    perNivells: perNivells,
+    superindex: superindex,
+    textSubnivells: textSubnivells,
+    posicio: posicio
+  };
+})();
+
+</script>
+<script>
+/* missions.js */
+/* MISSIÓ ÀTOM — Missions i reptes competencials
+   Currículum de Física i Química de Catalunya (3r i 4t d'ESO, amb algun repte de 1r de Batxillerat).
+
+   Cada missió comença amb una PREGUNTA QUE IMPORTA: un fenomen quotidià o sorprenent
+   que l'alumne intenta explicar abans de rebre cap resposta.
+
+   Estructura d'una missió:
+     id, nivell (1 Explorador · 2 Investigador · 3 Científic), titol, insignia
+     preguntaImporta: la pregunta inicial
+     fenomen: l'observació que la motiva
+     hipotesis: opcions perquè l'alumne formuli una hipòtesi inicial. No n'hi ha cap de «correcta»;
+                el comentari es mostra al final, quan l'alumne torna a la pregunta.
+     reptes: tres reptes encadenats, de més senzill a més complex
+     tancament: la resposta a la pregunta inicial, construïda amb el que s'ha après
+
+   Estructura d'un repte:
+     competencia, conceptes (vegeu CONCEPTES), context, pregunta
+     opcions: { t, ok, fb }. Els distractors representen errors conceptuals habituals;
+              fb explica per què és un error.
+     pistes: de més general a més concreta. Cada pista resta pocs punts.
+     explicacio: raonament científic breu
+     justificacio (opcional): segona pregunta sobre el PERQUÈ. Puntua el raonament, no només l'encert.
+     elements: símbols que l'alumne pot consultar a la taula */
+
+window.MA_CONCEPTES = {
+  particules: 'Partícules subatòmiques',
+  za: 'Nombre atòmic i màssic',
+  isotops: 'Isòtops',
+  materia: 'Elements, compostos i molècules',
+  propietats: 'Propietats dels materials',
+  taula: 'Organització de la taula periòdica',
+  valencia: 'Electrons de valència',
+  ions: 'Formació d\'ions',
+  enllac: 'Enllaç químic',
+  reactivitat: 'Reactivitat',
+  configuracio: 'Configuració electrònica',
+  periodiques: 'Propietats periòdiques',
+  seguretat: 'Seguretat al laboratori i a casa'
+};
+
+window.MA_NIVELLS = {
+  1: { nom: 'Explorador', curs: '3r d\'ESO', desc: 'Àtoms, partícules, elements i propietats de la matèria' },
+  2: { nom: 'Investigador', curs: '4t d\'ESO', desc: 'Taula periòdica, ions, enllaços i reactivitat' },
+  3: { nom: 'Científic', curs: '4t d\'ESO · 1r de Batxillerat', desc: 'Configuració electrònica, propietats periòdiques i situacions reals' }
+};
+
+window.MA_MISSIONS = [
+
+  // =====================================================================
+  // NIVELL 1 — EXPLORADOR (3r d'ESO)
+  // =====================================================================
+  {
+    id: 'm1-buit', nivell: 1, titol: 'Gairebé buit', insignia: 'Mirada al nucli',
+    preguntaImporta: 'Si els àtoms són gairebé buits, per què no travessem la cadira quan hi seiem?',
+    fenomen: 'La cadira, el terra i el teu cos estan fets d\'àtoms. I els científics diuen que un àtom és, sobretot, espai buit.',
+    hipotesis: [
+      { t: 'En realitat els àtoms no són buits: estan plens de matèria.', comentari: 'Era una hipòtesi raonable: tot sembla sòlid. Però l\'experiment de Rutherford va demostrar que gairebé tota la massa és en un nucli minúscul.' },
+      { t: 'Hi ha alguna força entre els àtoms de la cadira i els del cos que ens empeny.', comentari: 'Bona intuïció. Aquesta força és la repulsió elèctrica entre els electrons dels dos materials.' },
+      { t: 'La cadira és massa dura per travessar-la.', comentari: 'Descrivia el que observem, però no ho explicava. La duresa és conseqüència de les forces entre partícules.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Començar sense saber-ho és el punt de partida de tota investigació.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Interpretar un experiment', conceptes: ['particules'],
+        context: 'El 1909, l\'equip de Rutherford va disparar partícules alfa (amb càrrega positiva) contra una làmina d\'or molt prima. Gairebé totes la van travessar sense desviar-se. Molt poques van rebotar cap enrere.',
+        pregunta: 'Quina conclusió es pot treure d\'aquests resultats?',
+        opcions: [
+          { t: 'L\'àtom és majoritàriament buit, i té un nucli petit i dens amb càrrega positiva.', ok: true, fb: 'Correcte. Les partícules que reboten han xocat contra el nucli; les altres passen per l\'espai buit.' },
+          { t: 'Els àtoms d\'or tenen forats perquè la làmina és molt prima.', ok: false, fb: 'La làmina tenia milers de capes d\'àtoms. Si el resultat depengués del gruix, totes les partícules s\'haurien desviat igual.' },
+          { t: 'Les partícules alfa són tan ràpides que travessen qualsevol cosa.', ok: false, fb: 'Si fos així, cap partícula no rebotaria. El fet que algunes rebotin indica que dins l\'àtom hi ha alguna cosa massiva.' },
+          { t: 'Els electrons de l\'or atreuen les partícules alfa i les fan passar.', ok: false, fb: 'Els electrons tenen molt poca massa i no poden desviar ni frenar significativament una partícula alfa.' }
+        ],
+        pistes: ['Pensa què vol dir que la majoria de partícules no trobin cap obstacle.', 'Ara pensa què cal per fer rebotar una partícula pesant i ràpida: un obstacle petit o gran? Lleuger o massiu?'],
+        explicacio: 'Si gairebé totes les partícules passen, l\'àtom és sobretot espai buit. Si unes poques reboten, és que han xocat amb una zona molt petita, massiva i positiva: el nucli. Al nucli hi ha els protons (+) i els neutrons (sense càrrega); els electrons (−) es mouen al seu voltant.',
+        justificacio: {
+          pregunta: 'Quina observació demostra que el nucli té càrrega positiva?',
+          opcions: [
+            { t: 'Que les partícules alfa, també positives, rebotin quan s\'hi acosten: càrregues iguals es repel·leixen.', ok: true, fb: 'Exacte. La repulsió entre càrregues del mateix signe explica el rebot.' },
+            { t: 'Que la majoria de partícules travessin la làmina.', ok: false, fb: 'Això demostra que l\'àtom és buit, no quina càrrega té el nucli.' },
+            { t: 'Que l\'or sigui un metall.', ok: false, fb: 'Ser metall no informa de la càrrega del nucli.' }
+          ]
+        },
+        elements: ['Au']
+      },
+      {
+        competencia: 'Interpretar dades a escala', conceptes: ['particules'],
+        context: 'Massa relativa de les partícules: protó ≈ 1, neutró ≈ 1, electró ≈ 1/1836. Si el nucli d\'un àtom fos com un pèsol, l\'àtom sencer seria tan gran com un estadi de futbol.',
+        pregunta: 'Quina afirmació es dedueix d\'aquestes dades?',
+        opcions: [
+          { t: 'Gairebé tota la massa de l\'àtom és al nucli, que ocupa una part petitíssima del volum.', ok: true, fb: 'Correcte. Protons i neutrons concentren la massa; els electrons ocupen el volum.' },
+          { t: 'Els electrons aporten la major part de la massa perquè ocupen tot l\'àtom.', ok: false, fb: 'Ocupar volum no vol dir tenir massa. Cada electró té unes 1.800 vegades menys massa que un protó.' },
+          { t: 'Protons, neutrons i electrons tenen la mateixa massa.', ok: false, fb: 'Les dades mostren que l\'electró és molt més lleuger.' },
+          { t: 'El nucli és gran, però els electrons són encara més grans.', ok: false, fb: 'Segons l\'analogia, el nucli és com un pèsol dins d\'un estadi: és molt petit.' }
+        ],
+        pistes: ['Compara la massa d\'un electró amb la d\'un protó.', 'On són els protons i els neutrons?'],
+        explicacio: 'El nucli concentra més del 99,9 % de la massa de l\'àtom en un volum minúscul. La resta de l\'espai el defineixen els electrons, que gairebé no tenen massa.',
+        elements: ['H', 'C']
+      },
+      {
+        competencia: 'Relacionar conceptes per explicar un fenomen', conceptes: ['particules', 'propietats'],
+        context: 'Tornem a la cadira. Quan hi seus, els àtoms de la teva roba s\'acosten molt als àtoms de la cadira. La part més externa de cada àtom són els electrons.',
+        pregunta: 'Per què no la travesses?',
+        opcions: [
+          { t: 'Els electrons dels dos materials tenen càrrega negativa i es repel·leixen amb molta força quan s\'acosten.', ok: true, fb: 'Correcte. La força elèctrica entre electrons impedeix que els àtoms s\'interpenetrin.' },
+          { t: 'Els nuclis de la cadira i del cos xoquen entre ells.', ok: false, fb: 'Els nuclis són massa petits i allunyats per tocar-se. Abans que s\'acostin, els electrons ja es repel·leixen.' },
+          { t: 'La gravetat de la cadira ens aguanta.', ok: false, fb: 'La gravetat ens atrau cap avall; no és la força que ens sosté sobre la cadira.' },
+          { t: 'Els àtoms de la cadira estan enganxats amb cola.', ok: false, fb: 'Els àtoms es mantenen units per forces elèctriques, no per cap cola.' }
+        ],
+        pistes: ['Quina part de l\'àtom queda més a fora?', 'Quina càrrega tenen els electrons? Què passa entre càrregues iguals?'],
+        explicacio: 'Quan dos materials s\'acosten, els primers que es troben són els electrons de l\'exterior dels àtoms. Com que tots són negatius, es repel·leixen. Aquesta repulsió elèctrica és la que sentim com a «tocar» o «aguantar».',
+        elements: []
+      }
+    ],
+    tancament: 'Els àtoms són gairebé buits: la massa es concentra en un nucli minúscul. Però l\'espai buit no és un forat per on es pugui passar. Els electrons de la cadira i els del teu cos es repel·leixen, i aquesta força elèctrica és la que et sosté.'
+  },
+
+  {
+    id: 'm1-or', nivell: 1, titol: 'El somni dels alquimistes', insignia: 'Codi dels protons',
+    preguntaImporta: 'Els alquimistes van passar segles intentant convertir plom en or. Per què no ho van aconseguir mai?',
+    fenomen: 'Barrejaven, escalfaven i dissolien metalls amb tota mena de substàncies. Obtenien colors i materials nous, però mai or.',
+    hipotesis: [
+      { t: 'Els faltava la recepta correcta o la substància adequada.', comentari: 'És el que pensaven ells. Però cap reacció química pot aconseguir-ho, perquè les reaccions químiques no canvien el nucli.' },
+      { t: 'El plom i l\'or són coses diferents per dins, i no es poden transformar barrejant-los.', comentari: 'Molt bona intuïció: la diferència és al nucli, en el nombre de protons.' },
+      { t: 'No tenien prou calor als seus forns.', comentari: 'Una idea lògica, però ni la calor més intensa d\'un forn pot canviar el nombre de protons d\'un nucli.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja tens la resposta: el que defineix un element és el seu nombre de protons.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Interpretar informació', conceptes: ['za', 'particules'],
+        context: 'Un àtom d\'or té 79 protons, 118 neutrons i 79 electrons. En una reacció química, aquest àtom perd 1 electró.',
+        pregunta: 'Continua sent or?',
+        opcions: [
+          { t: 'Sí. Continua tenint 79 protons; ara és un ió positiu d\'or.', ok: true, fb: 'Correcte. El nombre de protons (Z) defineix l\'element.' },
+          { t: 'No. Amb 78 electrons ara és platí (Z = 78).', ok: false, fb: 'Error habitual: confondre electrons amb protons. El nombre atòmic compta protons, no electrons.' },
+          { t: 'No. Ara és un àtom de cap element.', ok: false, fb: 'Continua sent or. Només ha canviat la càrrega.' },
+          { t: 'Depèn de quants neutrons tingui.', ok: false, fb: 'Els neutrons no determinen l\'element. Dos àtoms amb el mateix nombre de protons són del mateix element.' }
+        ],
+        pistes: ['Què compta el nombre atòmic, Z?', 'Ha canviat el nombre de protons?'],
+        explicacio: 'El nombre atòmic (Z) és el nombre de protons, i és el que defineix l\'element. Tots els àtoms amb 79 protons són or. Si un àtom guanya o perd electrons, es converteix en un ió del mateix element.',
+        elements: ['Au', 'Pt']
+      },
+      {
+        competencia: 'Aplicar a una situació real', conceptes: ['isotops', 'za'],
+        context: 'Per datar restes arqueològiques es mesura el carboni-14. El carboni normal és el carboni-12. El carboni-14 té 6 protons i 8 neutrons; el carboni-12, 6 protons i 6 neutrons.',
+        pregunta: 'Què són el carboni-12 i el carboni-14?',
+        opcions: [
+          { t: 'Isòtops del mateix element: mateix nombre de protons i diferent nombre de neutrons.', ok: true, fb: 'Correcte. El número que acompanya el nom és el nombre màssic (protons + neutrons).' },
+          { t: 'Dos elements diferents, perquè tenen masses diferents.', ok: false, fb: 'Error habitual: pensar que la massa defineix l\'element. El que el defineix són els protons.' },
+          { t: 'El carboni-14 és nitrogen, perquè té 14 partícules al nucli i el nitrogen té massa 14.', ok: false, fb: 'El nitrogen té 7 protons. El carboni-14 en té 6: és carboni.' },
+          { t: 'El carboni-14 té 14 electrons.', ok: false, fb: 'El 14 és el nombre màssic (6 protons + 8 neutrons). Un àtom neutre de carboni té 6 electrons.' }
+        ],
+        pistes: ['Compara el nombre de protons dels dos àtoms.', 'Què indica el número 12 o 14? Suma protons i neutrons.'],
+        explicacio: 'Els isòtops són àtoms del mateix element (mateix Z) amb diferent nombre de neutrons i, per tant, diferent nombre màssic (A = protons + neutrons). Tenen les mateixes propietats químiques. El carboni-14 és radioactiu i es desintegra a un ritme conegut: per això permet datar restes.',
+        justificacio: {
+          pregunta: 'Per què el carboni-14 té les mateixes propietats químiques que el carboni-12?',
+          opcions: [
+            { t: 'Perquè té els mateixos electrons, i les reaccions químiques depenen dels electrons.', ok: true, fb: 'Exacte. Els neutrons afecten la massa i l\'estabilitat del nucli, no la química.' },
+            { t: 'Perquè tenen la mateixa massa.', ok: false, fb: 'Tenen masses diferents (12 i 14).' },
+            { t: 'Perquè tots dos són radioactius.', ok: false, fb: 'El carboni-12 és estable; només el carboni-14 és radioactiu.' }
+          ]
+        },
+        elements: ['C', 'N']
+      },
+      {
+        competencia: 'Formular una explicació', conceptes: ['za', 'materia'],
+        context: 'El plom té Z = 82. L\'or té Z = 79. En una reacció química, els àtoms intercanvien o comparteixen electrons, però el nucli no canvia.',
+        pregunta: 'Què caldria fer per convertir un àtom de plom en un àtom d\'or?',
+        opcions: [
+          { t: 'Treure-li 3 protons del nucli. Cap reacció química no ho pot fer; caldria una reacció nuclear.', ok: true, fb: 'Correcte. Per això els alquimistes no ho van aconseguir.' },
+          { t: 'Treure-li 3 electrons amb un àcid fort.', ok: false, fb: 'Treure electrons dona un ió de plom, no or. Error habitual: confondre protons i electrons.' },
+          { t: 'Barrejar-lo amb una mica d\'or perquè es contagiï.', ok: false, fb: 'Barrejar substàncies dona una mescla o un aliatge, però no canvia els nuclis.' },
+          { t: 'Escalfar-lo fins que es fongui.', ok: false, fb: 'Fondre és un canvi físic: el plom líquid continua sent plom.' }
+        ],
+        pistes: ['Recorda: què defineix l\'element?', 'Quina diferència de protons hi ha entre el plom i l\'or? Una reacció química pot canviar els protons?'],
+        explicacio: 'Per canviar d\'element s\'ha de canviar el nombre de protons, i això només passa en reaccions nuclears (als reactors, als acceleradors de partícules o a les estrelles). Avui és possible obtenir or a partir d\'altres elements en un accelerador, però en quantitats ínfimes i amb un cost enorme.',
+        elements: ['Pb', 'Au']
+      }
+    ],
+    tancament: 'El que fa que un àtom sigui or és tenir 79 protons al nucli. Les reaccions químiques només mouen electrons, i per això cap recepta alquímica podia funcionar. La química transforma substàncies; per transformar elements cal física nuclear.'
+  },
+
+  {
+    id: 'm1-aigua', nivell: 1, titol: 'Peixos i oxigen', insignia: 'Element o compost',
+    preguntaImporta: 'L\'aigua conté oxigen. Aleshores, per què un peix s\'ofega en una aigua sense oxigen dissolt?',
+    fenomen: 'A l\'estiu, en estanys calents i amb poca aigua, de vegades apareixen peixos morts per falta d\'oxigen. I la molècula d\'aigua, H₂O, té un àtom d\'oxigen.',
+    hipotesis: [
+      { t: 'L\'oxigen de l\'aigua està «enganxat» a l\'hidrogen i el peix no el pot fer servir.', comentari: 'Molt ben vist: a la molècula d\'aigua, l\'oxigen està unit a l\'hidrogen formant un compost amb propietats noves.' },
+      { t: 'En aquests estanys l\'aigua s\'ha evaporat i ja no hi ha oxigen.', comentari: 'La calor sí que hi té a veure, però per una altra raó: l\'aigua calenta dissol menys oxigen gas.' },
+      { t: 'Els peixos respiren aigua, no oxigen.', comentari: 'És una idea molt estesa, però els peixos respiren oxigen gas (O₂) dissolt a l\'aigua, a través de les brànquies.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja pots distingir entre un element i un compost que el conté.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Observar i comparar propietats', conceptes: ['materia'],
+        context: 'L\'hidrogen (H₂) és un gas que explota amb facilitat. L\'oxigen (O₂) és un gas que fa que les coses cremin més. L\'aigua (H₂O) s\'utilitza per apagar focs.',
+        pregunta: 'Què demostren aquestes observacions?',
+        opcions: [
+          { t: 'Un compost té propietats diferents de les dels elements que el formen.', ok: true, fb: 'Correcte. Quan els àtoms s\'uneixen formant un compost, apareixen propietats noves.' },
+          { t: 'L\'aigua és una mescla d\'hidrogen i oxigen.', ok: false, fb: 'Error habitual. Una mescla conservaria les propietats dels components: l\'aigua cremaria o explotaria.' },
+          { t: 'L\'aigua conté poc oxigen i per això no crema.', ok: false, fb: 'En massa, gairebé el 89 % de l\'aigua és oxigen. El que canvia és que està combinat.' },
+          { t: 'Les observacions són contradictòries: algun dels tres gasos està mal descrit.', ok: false, fb: 'Les tres observacions són correctes i encaixen si distingim element i compost.' }
+        ],
+        pistes: ['Les propietats de l\'aigua s\'assemblen a les de l\'hidrogen o de l\'oxigen?', 'Pensa en la diferència entre mescla (els components conserven les propietats) i compost (els àtoms s\'uneixen).'],
+        explicacio: 'L\'aigua és un compost: les seves molècules estan formades per 2 àtoms d\'hidrogen i 1 d\'oxigen units per enllaços. No és una mescla dels dos gasos. Per això té propietats completament noves.',
+        elements: ['H', 'O']
+      },
+      {
+        competencia: 'Interpretar representacions de partícules', conceptes: ['materia'],
+        context: 'Quatre recipients contenen: A) partícules O₂ totes iguals. B) molècules H₂O totes iguals. C) molècules H₂ i molècules O₂ barrejades. D) àtoms d\'heli separats.',
+        pregunta: 'Quina classificació és correcta?',
+        opcions: [
+          { t: 'A i D: elements. B: compost. C: mescla de dos elements.', ok: true, fb: 'Correcte. Un element té un sol tipus d\'àtom; un compost, molècules amb àtoms diferents; una mescla, partícules diferents sense unir.' },
+          { t: 'A: compost, perquè té molècules de 2 àtoms.', ok: false, fb: 'Error habitual: pensar que tota molècula és un compost. O₂ és una molècula d\'un element, perquè els dos àtoms són iguals.' },
+          { t: 'C: compost, perquè conté hidrogen i oxigen.', ok: false, fb: 'Conté hidrogen i oxigen, però sense unir: és una mescla. Si s\'unissin formarien aigua.' },
+          { t: 'D: no és matèria, perquè els àtoms no formen molècules.', ok: false, fb: 'L\'heli és un element format per àtoms solts. Els gasos nobles no formen molècules.' }
+        ],
+        pistes: ['Element: un sol tipus d\'àtom. Compost: àtoms diferents units.', 'Al recipient C, els àtoms d\'hidrogen estan units als d\'oxigen?'],
+        explicacio: 'Molècula vol dir àtoms units; no vol dir necessàriament compost. O₂ i H₂ són molècules d\'elements. H₂O és una molècula d\'un compost. Una mescla conté partícules diferents que no estan unides entre si.',
+        elements: ['O', 'He', 'H']
+      },
+      {
+        competencia: 'Aplicar a una situació real', conceptes: ['materia', 'propietats'],
+        context: 'Les brànquies dels peixos capten molècules d\'oxigen, O₂, que hi ha dissoltes a l\'aigua. L\'aigua calenta dissol menys gasos que l\'aigua freda.',
+        pregunta: 'Per què a l\'estiu, en un estany petit i calent, els peixos es poden ofegar?',
+        opcions: [
+          { t: 'Perquè l\'aigua calenta conté menys O₂ dissolt, i el peix no pot separar l\'oxigen de les molècules d\'H₂O.', ok: true, fb: 'Correcte. El peix depèn de l\'O₂ dissolt, no de l\'oxigen que forma part de l\'aigua.' },
+          { t: 'Perquè la calor trenca les molècules d\'aigua i l\'oxigen s\'escapa.', ok: false, fb: 'La calor de l\'estiu no trenca les molècules d\'aigua; cal molta més energia.' },
+          { t: 'Perquè l\'aigua calenta conté menys àtoms d\'oxigen a les molècules.', ok: false, fb: 'Totes les molècules d\'aigua tenen sempre 1 àtom d\'oxigen, sigui freda o calenta.' },
+          { t: 'Perquè els peixos necessiten més aigua quan fa calor.', ok: false, fb: 'El problema no és la quantitat d\'aigua sinó la de gas oxigen dissolt.' }
+        ],
+        pistes: ['Què capten les brànquies: H₂O o O₂?', 'Com afecta la temperatura a la quantitat de gas dissolt? Pensa en un refresc calent.'],
+        explicacio: 'L\'oxigen de la molècula d\'aigua està unit a l\'hidrogen per enllaços forts. Separar-lo requereix molta energia (per exemple, l\'electròlisi). Els peixos utilitzen l\'O₂ dissolt, i l\'aigua calenta en dissol menys, com un refresc calent que perd el gas.',
+        justificacio: {
+          pregunta: 'Per què el peix no pot fer servir l\'oxigen de la molècula d\'aigua?',
+          opcions: [
+            { t: 'Perquè forma part d\'un compost: està unit a l\'hidrogen i caldria molta energia per separar-lo.', ok: true, fb: 'Exacte. Un element dins d\'un compost no es comporta com l\'element lliure.' },
+            { t: 'Perquè a l\'aigua hi ha molt poc oxigen.', ok: false, fb: 'L\'oxigen és gairebé el 89 % de la massa de l\'aigua.' },
+            { t: 'Perquè l\'oxigen de l\'aigua és d\'un altre tipus.', ok: false, fb: 'Els àtoms d\'oxigen són iguals. El que canvia és que estan units a uns altres àtoms.' }
+          ]
+        },
+        elements: ['O', 'H']
+      }
+    ],
+    tancament: 'L\'aigua conté oxigen, però combinat amb hidrogen formant un compost, amb propietats noves. Els peixos necessiten oxigen com a element lliure, O₂, dissolt a l\'aigua. Quan l\'aigua s\'escalfa, en dissol menys i els peixos s\'ofeguen envoltats d\'aigua.'
+  },
+
+  {
+    id: 'm1-cables', nivell: 1, titol: 'Per dins d\'un cable', insignia: 'Tria de materials',
+    preguntaImporta: 'Per què els cables elèctrics són de coure per dins i de plàstic per fora?',
+    fenomen: 'Si talles un cable del carregador, veuràs uns fils metàl·lics de color vermellós envoltats d\'una funda de plàstic.',
+    hipotesis: [
+      { t: 'El coure deixa passar el corrent i el plàstic ens protegeix.', comentari: 'Molt bé: has relacionat cada material amb una propietat. Ara saps per què el coure és especialment adequat.' },
+      { t: 'El coure és el metall més barat i el plàstic és per decorar.', comentari: 'El preu compta, però la funda no és decorativa: és un aïllant elèctric imprescindible per a la seguretat.' },
+      { t: 'El coure és el millor conductor que existeix.', comentari: 'Gairebé: la plata condueix una mica millor, però és molt més cara. Escollir un material és equilibrar propietats i cost.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja saps com es tria un material: segons les propietats que necessita l\'aplicació.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Prendre decisions amb criteris científics', conceptes: ['propietats'],
+        context: 'Una empresa ha d\'escollir el metall dels cables d\'un edifici. Opcions: plata (conductora excel·lent, molt cara), coure (conductor excel·lent, assequible, es pot estirar en fils), ferro (conductor regular, es rovella), plom (conductor dolent, tòxic).',
+        pregunta: 'Quina és la millor tria i per què?',
+        opcions: [
+          { t: 'Coure: condueix molt bé, és dúctil (es pot estirar en fils) i té un cost raonable.', ok: true, fb: 'Correcte. La tria combina diverses propietats, no només una.' },
+          { t: 'Plata, perquè és el millor conductor.', ok: false, fb: 'És el millor conductor, però el cost faria inviable cablejar un edifici. La millor tria no sempre és la de la millor propietat.' },
+          { t: 'Ferro, perquè és el metall més resistent.', ok: false, fb: 'La resistència mecànica no és el que necessita un cable, i el ferro condueix pitjor i es rovella.' },
+          { t: 'Plom, perquè és tou i fàcil de doblegar.', ok: false, fb: 'És tou, però condueix malament i és tòxic.' }
+        ],
+        pistes: ['Quines propietats ha de tenir un cable? Pensa en almenys tres.', 'A més de conduir bé, s\'ha de poder estirar en fils i no pot ser massa car.'],
+        explicacio: 'Els materials es trien per un conjunt de propietats: conductivitat elèctrica, ductilitat (es poden estirar en fils), resistència a la corrosió, toxicitat i cost. El coure és la millor combinació per a cables.',
+        elements: ['Cu', 'Ag', 'Fe', 'Pb']
+      },
+      {
+        competencia: 'Relacionar propietats i seguretat', conceptes: ['propietats', 'seguretat'],
+        context: 'La funda dels cables és de plàstic. Un electricista diu que mai s\'ha de tocar un cable pelat endollat.',
+        pregunta: 'Quina funció té la funda de plàstic?',
+        opcions: [
+          { t: 'És un aïllant: no deixa passar el corrent i evita que circuli pel nostre cos.', ok: true, fb: 'Correcte. El plàstic és un mal conductor elèctric.' },
+          { t: 'Evita que el coure es refredi i deixi de conduir.', ok: false, fb: 'El coure condueix igual de bé a temperatura ambient; de fet, condueix millor com més fred és.' },
+          { t: 'Impedeix que l\'electricitat s\'escapi del cable com si fos aigua d\'una mànega.', ok: false, fb: 'El corrent no «s\'escapa» si no hi ha un camí conductor. El perill és que el nostre cos esdevingui aquest camí.' },
+          { t: 'Només fa de color per identificar els cables.', ok: false, fb: 'Els colors serveixen per identificar-los, però la funció principal és aïllar.' }
+        ],
+        pistes: ['Hi ha materials conductors i materials aïllants.', 'Què passaria si toquéssim el coure directament mentre hi circula corrent?'],
+        explicacio: 'Els metalls són bons conductors perquè alguns dels seus electrons es poden moure lliurement. Els plàstics no tenen electrons lliures: són aïllants. Combinar un conductor i un aïllant fa que el corrent arribi on volem i no passi per nosaltres.',
+        elements: ['Cu', 'C']
+      },
+      {
+        competencia: 'Predir a partir de la taula', conceptes: ['propietats', 'taula'],
+        context: 'Observa la taula periòdica: els metalls són a l\'esquerra i al centre; els no metalls, a la dreta. El fòsfor (P) i el sofre (S) són a la dreta. El níquel (Ni) és al centre.',
+        pregunta: 'Quin d\'aquests elements esperes que condueixi bé l\'electricitat?',
+        opcions: [
+          { t: 'El níquel, perquè és un metall.', ok: true, fb: 'Correcte. La posició a la taula permet predir si un element és metàl·lic.' },
+          { t: 'El sofre, perquè és groc com alguns metalls.', ok: false, fb: 'El color no indica si és un metall. El sofre és un no metall i un bon aïllant.' },
+          { t: 'El fòsfor, perquè és sòlid.', ok: false, fb: 'Ser sòlid no vol dir conduir. Molts sòlids, com la fusta o el plàstic, són aïllants.' },
+          { t: 'Cap, perquè només el coure i la plata condueixen.', ok: false, fb: 'Tots els metalls condueixen l\'electricitat, uns més que d\'altres.' }
+        ],
+        pistes: ['Busca els tres elements a la taula i mira de quina família són.', 'Quin tipus d\'element és bon conductor?'],
+        explicacio: 'La taula periòdica no és una llista per memoritzar: la posició d\'un element n\'indica les propietats. Els metalls (esquerra i centre) condueixen l\'electricitat i la calor; els no metalls (dreta) solen ser aïllants.',
+        elements: ['Ni', 'S', 'P']
+      }
+    ],
+    tancament: 'El coure condueix molt bé, es pot estirar en fils i no és car: és ideal per transportar el corrent. El plàstic és aïllant i impedeix que el corrent passi pel nostre cos. Cada material compleix una funció segons les seves propietats.'
+  },
+
+  // =====================================================================
+  // NIVELL 2 — INVESTIGADOR (4t d'ESO)
+  // =====================================================================
+  {
+    id: 'm2-sodi-sal', nivell: 2, titol: 'Sodi que explota, sal que es dissol', insignia: 'Domini dels ions',
+    preguntaImporta: 'El sodi metàl·lic reacciona violentament amb l\'aigua. La sal de cuina també conté sodi, però s\'hi dissol tranquil·lament. Com pot ser?',
+    fenomen: 'Un tros de sodi tirat a l\'aigua corre per la superfície, s\'escalfa i pot fer flama. Una cullerada de sal (clorur de sodi, NaCl) desapareix a l\'aigua sense fer res d\'especial.',
+    hipotesis: [
+      { t: 'A la sal hi ha molt poc sodi.', comentari: 'Una idea lògica, però gairebé el 40 % de la massa de la sal és sodi. La diferència és com està aquest sodi.' },
+      { t: 'Al clorur de sodi, el sodi ja ha perdut l\'electró que el fa reactiu.', comentari: 'Excel·lent hipòtesi: és exactament el que passa. A la sal hi ha ions Na⁺.' },
+      { t: 'El clor neutralitza el sodi.', comentari: 'Vas per bon camí: el clor hi té a veure, perquè capta l\'electró que el sodi cedeix.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja saps que un àtom i el seu ió es comporten de manera molt diferent.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Justificar amb l\'estructura electrònica', conceptes: ['valencia', 'ions'],
+        context: 'Un àtom de sodi té 11 electrons: 2 a la primera capa, 8 a la segona i 1 a la tercera. Un ió Na⁺ té 10 electrons.',
+        pregunta: 'Per què el sodi metàl·lic és tan reactiu i l\'ió Na⁺ no?',
+        opcions: [
+          { t: 'L\'àtom té 1 electró de valència que cedeix fàcilment; l\'ió ja l\'ha cedit i té la capa externa completa.', ok: true, fb: 'Correcte. L\'ió Na⁺ té la mateixa configuració estable que el neó.' },
+          { t: 'L\'ió Na⁺ té més protons i per això és més estable.', ok: false, fb: 'L\'ió té els mateixos 11 protons. Només ha perdut un electró.' },
+          { t: 'L\'àtom de sodi té càrrega i l\'ió no.', ok: false, fb: 'És al revés: l\'àtom és neutre (11 protons, 11 electrons) i l\'ió té càrrega +1.' },
+          { t: 'L\'ió Na⁺ ha guanyat un electró que el fa estable.', ok: false, fb: 'Error habitual amb el signe. Un ió positiu ha perdut electrons, no n\'ha guanyat.' }
+        ],
+        pistes: ['Quants electrons té el sodi a l\'última capa?', 'Compara la distribució de 10 electrons (2, 8) amb la d\'un gas noble.'],
+        explicacio: 'El sodi té 1 electró de valència. El cedeix amb molta facilitat (a l\'aigua, per exemple) i queda com a Na⁺, amb 2 i 8 electrons, com el neó. A la sal, el sodi ja és Na⁺: no té cap electró per cedir i no reacciona amb l\'aigua.',
+        justificacio: {
+          pregunta: 'Per què un ió Na⁺ té càrrega positiva?',
+          opcions: [
+            { t: 'Perquè té 11 protons i només 10 electrons.', ok: true, fb: 'Exacte. Hi ha un protó més que electrons.' },
+            { t: 'Perquè ha guanyat un protó.', ok: false, fb: 'Els protons no canvien en una reacció química.' },
+            { t: 'Perquè el sodi és un metall.', ok: false, fb: 'Ser metall explica la tendència a perdre electrons, però la càrrega ve del balanç protons–electrons.' }
+          ]
+        },
+        elements: ['Na', 'Ne']
+      },
+      {
+        competencia: 'Interpretar un fenomen', conceptes: ['enllac', 'ions', 'materia'],
+        context: 'Quan dissols sal a l\'aigua, deixes de veure-la. Si evapores l\'aigua, torna a aparèixer la sal.',
+        pregunta: 'Què passa quan la sal es dissol?',
+        opcions: [
+          { t: 'Els ions Na⁺ i Cl⁻ se separen i queden envoltats de molècules d\'aigua. No es forma cap substància nova.', ok: true, fb: 'Correcte. És un procés físic: per això en evaporar l\'aigua recuperes la sal.' },
+          { t: 'La sal reacciona amb l\'aigua i es transforma en una altra substància.', ok: false, fb: 'Si fos una reacció, en evaporar l\'aigua no recuperaries sal.' },
+          { t: 'La sal desapareix.', ok: false, fb: 'La matèria no desapareix: les partícules són tan petites i estan tan repartides que no les veiem.' },
+          { t: 'Els àtoms de sodi i de clor tornen a ser sodi metàl·lic i clor gas.', ok: false, fb: 'Si fos així, el sodi metàl·lic reaccionaria amb l\'aigua i el clor faria olor. Els ions continuen sent ions.' }
+        ],
+        pistes: ['Què recuperes si evapores l\'aigua?', 'De quines partícules està feta la sal?'],
+        explicacio: 'La sal és un compost iònic: una xarxa ordenada d\'ions Na⁺ i Cl⁻. L\'aigua separa els ions i els envolta, però continuen sent els mateixos ions. Per això la dissolució es pot desfer evaporant l\'aigua.',
+        elements: ['Na', 'Cl']
+      },
+      {
+        competencia: 'Relacionar propietats i seguretat', conceptes: ['materia', 'ions', 'seguretat'],
+        context: 'El sodi metàl·lic reacciona violentament amb l\'aigua. El clor (Cl₂) és un gas verd groguenc tòxic. La sal (NaCl) és a la teva taula.',
+        pregunta: 'Quina conclusió és correcta?',
+        opcions: [
+          { t: 'Les propietats d\'un compost no són la suma de les dels seus elements: a la sal, sodi i clor són ions estables.', ok: true, fb: 'Correcte. És una de les idees clau de la química.' },
+          { t: 'La sal és perillosa, però en quantitats petites no fa mal.', ok: false, fb: 'La sal no conté sodi metàl·lic ni clor gas: la seva toxicitat no té res a veure amb la d\'aquests elements.' },
+          { t: 'Quan el sodi i el clor s\'uneixen, la toxicitat de l\'un anul·la la de l\'altre.', ok: false, fb: 'No s\'anul·len. Es forma una substància nova amb propietats noves.' },
+          { t: 'La sal de cuina és una mescla de sodi i clor.', ok: false, fb: 'És un compost: els àtoms han intercanviat electrons i formen ions units.' }
+        ],
+        pistes: ['Pensa en la missió de l\'aigua i els peixos: element o compost?', 'Al compost, el sodi i el clor són àtoms o ions?'],
+        explicacio: 'El sodi cedeix un electró al clor: Na → Na⁺ i Cl → Cl⁻. Tots dos queden amb la capa externa completa i s\'atreuen per les seves càrregues oposades. El resultat és un compost estable i comestible a partir de dos elements perillosos.',
+        elements: ['Na', 'Cl']
+      }
+    ],
+    tancament: 'A la sal, el sodi no és sodi metàl·lic: és l\'ió Na⁺, que ja ha cedit el seu electró de valència al clor. Sense aquest electró, no pot reaccionar amb l\'aigua. En dissoldre\'s, els ions simplement se separen. El mateix element es comporta de manera molt diferent com a àtom i com a ió.'
+  },
+
+  {
+    id: 'm2-rovell', nivell: 2, titol: 'Metalls que s\'oxiden', insignia: 'Escut contra la corrosió',
+    preguntaImporta: 'Per què un clau de ferro es rovella en unes setmanes i les joies d\'or de fa 3.000 anys continuen brillant?',
+    fenomen: 'A les tombes egípcies s\'han trobat objectes d\'or intactes. En canvi, una bicicleta deixada a la intempèrie a prop del mar es rovella de seguida.',
+    hipotesis: [
+      { t: 'L\'or és més dur que el ferro.', comentari: 'De fet, l\'or és força tou. La diferència no és la duresa, sinó la facilitat per perdre electrons.' },
+      { t: 'El ferro reacciona amb l\'aire i l\'aigua, i l\'or no.', comentari: 'Molt ben observat: l\'or és molt poc reactiu i el ferro cedeix electrons a l\'oxigen amb facilitat.' },
+      { t: 'L\'or es netejava més sovint.', comentari: 'L\'or enterrat durant mil·lennis no es netejava. La diferència és química.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja saps que la corrosió és una reacció en què el metall perd electrons.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Interpretar un experiment', conceptes: ['reactivitat'],
+        context: 'Es posen tres claus de ferro en tres tubs: A) aigua i aire. B) aire sec. C) aigua bullida (sense aire) tapada amb oli. Al cap d\'una setmana només s\'ha rovellat el clau A.',
+        pregunta: 'Què es pot concloure?',
+        opcions: [
+          { t: 'El ferro necessita oxigen i aigua alhora per rovellar-se.', ok: true, fb: 'Correcte. Cada tub elimina un factor i permet veure si és necessari.' },
+          { t: 'El ferro només necessita aigua per rovellar-se.', ok: false, fb: 'El tub C tenia aigua i no s\'ha rovellat: també cal l\'oxigen de l\'aire.' },
+          { t: 'L\'oli impedeix el rovell, i per això el clau C no s\'ha rovellat.', ok: false, fb: 'L\'oli només impedeix que l\'aire entri a l\'aigua. El factor important és l\'absència d\'oxigen.' },
+          { t: 'El rovell depèn de la sort.', ok: false, fb: 'Un experiment controlat permet identificar les causes.' }
+        ],
+        pistes: ['Què tenia cada tub?', 'Quin és l\'únic tub on hi havia tant aigua com oxigen?'],
+        explicacio: 'És un experiment amb variables controlades: cada tub elimina un factor. El rovell (òxid de ferro hidratat) només es forma quan hi ha aigua i oxigen. La sal del mar l\'accelera.',
+        elements: ['Fe', 'O']
+      },
+      {
+        competencia: 'Comparar i justificar', conceptes: ['reactivitat', 'ions'],
+        context: 'Quan el ferro es rovella, els àtoms de ferro perden electrons i es converteixen en ions Fe³⁺ o Fe²⁺. L\'or pràcticament no perd electrons en contacte amb l\'aire.',
+        pregunta: 'Com expliques que l\'or no es rovelli?',
+        opcions: [
+          { t: 'L\'or reté molt fort els seus electrons i no els cedeix a l\'oxigen. És un metall poc reactiu.', ok: true, fb: 'Correcte. Per això es diu que l\'or és un metall noble.' },
+          { t: 'L\'or no té electrons.', ok: false, fb: 'L\'or té 79 electrons. La qüestió és si els cedeix fàcilment.' },
+          { t: 'L\'or és tan pesant que l\'oxigen no s\'hi pot enganxar.', ok: false, fb: 'La massa no determina la reactivitat.' },
+          { t: 'L\'or està recobert d\'una capa de pintura natural.', ok: false, fb: 'L\'or no té cap capa protectora. Simplement no reacciona.' }
+        ],
+        pistes: ['Rovellar-se vol dir perdre electrons.', 'Quin dels dos metalls cedeix electrons amb més facilitat?'],
+        explicacio: 'L\'oxidació d\'un metall consisteix a perdre electrons. Els metalls com el ferro, el zinc o l\'alumini els perden amb facilitat; l\'or, la plata o el platí, molt poc. Per això l\'or s\'utilitza en joies i en contactes electrònics.',
+        justificacio: {
+          pregunta: 'Quina aplicació aprofita que l\'or no s\'oxidi?',
+          opcions: [
+            { t: 'Els contactes dels connectors electrònics, que han de conduir bé durant anys.', ok: true, fb: 'Exacte. Una capa d\'òxid faria de barrera al corrent.' },
+            { t: 'Els cables elèctrics dels edificis.', ok: false, fb: 'Per als cables s\'utilitza coure, molt més barat.' },
+            { t: 'Les bigues dels edificis.', ok: false, fb: 'L\'or és massa tou i car. Les bigues són d\'acer.' }
+          ]
+        },
+        elements: ['Au', 'Fe']
+      },
+      {
+        competencia: 'Resoldre una situació real', conceptes: ['reactivitat', 'propietats'],
+        context: 'Cal protegir les baranes d\'acer (ferro) d\'un passeig marítim. Una empresa proposa recobrir-les de zinc (galvanitzat). El zinc perd electrons amb més facilitat que el ferro.',
+        pregunta: 'Per què el galvanitzat protegeix el ferro fins i tot si el recobriment es ratlla?',
+        opcions: [
+          { t: 'El zinc s\'oxida primer i cedeix electrons, de manera que el ferro no s\'oxida: el zinc es «sacrifica».', ok: true, fb: 'Correcte. És la protecció de sacrifici.' },
+          { t: 'El zinc no s\'oxida mai i fa de pantalla.', ok: false, fb: 'Error habitual. El zinc sí que s\'oxida, i justament per això protegeix el ferro.' },
+          { t: 'El zinc fa que el ferro sigui més dur.', ok: false, fb: 'El recobriment no canvia la duresa del ferro.' },
+          { t: 'Si es ratlla, ja no protegeix gens.', ok: false, fb: 'Continua protegint, i aquest és el gran avantatge del galvanitzat sobre la pintura.' }
+        ],
+        pistes: ['Quin metall cedeix electrons més fàcilment?', 'Si hi ha dos metalls en contacte, quin s\'oxidarà primer?'],
+        explicacio: 'Quan dos metalls estan en contacte amb aigua salada, s\'oxida primer el més reactiu. El zinc cedeix els seus electrons i el ferro queda protegit. Els vaixells porten blocs de zinc al casc pel mateix motiu.',
+        elements: ['Zn', 'Fe']
+      }
+    ],
+    tancament: 'Rovellar-se és perdre electrons en presència d\'oxigen i aigua. El ferro els cedeix amb facilitat; l\'or, pràcticament gens. Per això l\'or es conserva mil·lennis i el ferro necessita protecció, com la pintura o un metall més reactiu que s\'oxidi en lloc seu.'
+  },
+
+  {
+    id: 'm2-mendeleiev', nivell: 2, titol: 'Els forats de Mendeléiev', insignia: 'Predicció periòdica',
+    preguntaImporta: 'El 1869, Mendeléiev va deixar forats a la seva taula i va predir com serien uns elements que ningú havia vist mai. Com ho va poder fer?',
+    fenomen: 'Uns anys després es van descobrir el gal·li i el germani, i les seves propietats eren molt semblants a les que ell havia predit.',
+    hipotesis: [
+      { t: 'Va tenir sort.', comentari: 'Una sola predicció encertada podria ser sort, però en va encertar diverses i amb molt detall.' },
+      { t: 'Va veure que els elements d\'una mateixa columna s\'assemblen, i va deduir les propietats dels que faltaven.', comentari: 'Exacte: els elements d\'un mateix grup tenen propietats semblants. Avui sabem que és perquè tenen els mateixos electrons de valència.' },
+      { t: 'Ja havia vist aquests elements però no els havia anunciat.', comentari: 'No els havia vist: les seves prediccions es basaven en patrons.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja saps fer prediccions com les de Mendeléiev.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Observar patrons', conceptes: ['taula', 'valencia'],
+        context: 'Obre les fitxes del liti, el sodi i el potassi i mira quants electrons tenen a la capa externa.',
+        pregunta: 'Quin patró observes?',
+        opcions: [
+          { t: 'Tots tenen 1 electró a la capa externa; per això tenen propietats químiques semblants.', ok: true, fb: 'Correcte. Els elements d\'un grup tenen el mateix nombre d\'electrons de valència.' },
+          { t: 'Tots tenen el mateix nombre total d\'electrons.', ok: false, fb: 'En tenen 3, 11 i 19. El que coincideix són els de la capa externa.' },
+          { t: 'Tots tenen la capa externa completa.', ok: false, fb: 'Tenen la capa externa gairebé buida: un sol electró.' },
+          { t: 'Tenen la mateixa massa.', ok: false, fb: 'Les masses són molt diferents (6,9; 23,0; 39,1).' }
+        ],
+        pistes: ['Toca cada element a la taula i mira el model de capes.', 'Fixa\'t només en l\'última capa.'],
+        explicacio: 'Els elements d\'un mateix grup (columna) tenen el mateix nombre d\'electrons de valència. Com que les reaccions químiques depenen d\'aquests electrons, els elements d\'un grup reaccionen de manera semblant.',
+        elements: ['Li', 'Na', 'K']
+      },
+      {
+        competencia: 'Predir', conceptes: ['taula', 'ions', 'enllac'],
+        context: 'El magnesi (grup 2) i l\'oxigen formen l\'òxid de magnesi, MgO. El calci és just a sota del magnesi.',
+        pregunta: 'Quina fórmula predius per a l\'òxid de calci?',
+        opcions: [
+          { t: 'CaO, perquè el calci també té 2 electrons de valència i forma l\'ió Ca²⁺, com el Mg²⁺.', ok: true, fb: 'Correcte. L\'òxid de calci és la calç viva.' },
+          { t: 'Ca₂O, perquè el calci és més gran.', ok: false, fb: 'La mida no canvia els electrons de valència ni la càrrega de l\'ió.' },
+          { t: 'CaO₂, perquè el calci té més protons.', ok: false, fb: 'El nombre de protons no determina la proporció; ho fan les càrregues dels ions: Ca²⁺ i O²⁻.' },
+          { t: 'No es pot predir sense fer l\'experiment.', ok: false, fb: 'La taula permet fer aquesta predicció; és el que va fer Mendeléiev.' }
+        ],
+        pistes: ['El calci i el magnesi són al mateix grup.', 'Quina càrrega tenen els ions Mg²⁺ i O²⁻? Com quedarien amb el calci?'],
+        explicacio: 'Els elements d\'un grup formen ions amb la mateixa càrrega i compostos amb fórmules semblants: MgO, CaO, SrO, BaO. Saber-ne un permet predir els altres.',
+        elements: ['Mg', 'Ca', 'O']
+      },
+      {
+        competencia: 'Predir propietats d\'un element «desconegut»', conceptes: ['taula', 'propietats', 'ions'],
+        context: 'Mendeléiev va anomenar «eka-alumini» l\'element que havia d\'anar a sota de l\'alumini. L\'alumini és un metall que forma l\'ió Al³⁺ i l\'òxid Al₂O₃.',
+        pregunta: 'Què va predir per a aquest element, que avui anomenem gal·li?',
+        opcions: [
+          { t: 'Un metall que forma l\'ió Ga³⁺ i un òxid de fórmula Ga₂O₃.', ok: true, fb: 'Correcte. Va encertar fins i tot la densitat aproximada.' },
+          { t: 'Un gas noble que no reacciona.', ok: false, fb: 'Els gasos nobles són a la columna 18, no sota l\'alumini.' },
+          { t: 'Un no metall que forma ions negatius.', ok: false, fb: 'Sota un metall esperaríem un altre metall, encara més metàl·lic.' },
+          { t: 'Un element amb 1 electró de valència.', ok: false, fb: 'L\'alumini té 3 electrons de valència; el gal·li, al mateix grup, també.' }
+        ],
+        pistes: ['El gal·li és al mateix grup que l\'alumini.', 'Si l\'alumini forma Al³⁺ i Al₂O₃, què farà el gal·li?'],
+        explicacio: 'Mendeléiev va predir la massa, la densitat i la fórmula de l\'òxid del gal·li abans de descobrir-lo. Quan es va trobar el 1875, les dades encaixaven. Aquesta capacitat de predir és el que va convèncer la comunitat científica del valor de la taula.',
+        justificacio: {
+          pregunta: 'Per què el gal·li forma ions 3+?',
+          opcions: [
+            { t: 'Perquè té 3 electrons de valència, com l\'alumini, i tendeix a cedir-los.', ok: true, fb: 'Exacte. Obre la fitxa del gal·li: 4s² 4p¹ són els electrons externs.' },
+            { t: 'Perquè és al període 3.', ok: false, fb: 'El gal·li és al període 4. La càrrega depèn del grup, no del període.' },
+            { t: 'Perquè té 3 neutrons.', ok: false, fb: 'Els neutrons no intervenen en la formació d\'ions.' }
+          ]
+        },
+        elements: ['Al', 'Ga']
+      }
+    ],
+    tancament: 'Mendeléiev va ordenar els elements i va veure que les propietats es repetien de manera periòdica. Si un forat era sota l\'alumini, l\'element desconegut s\'havia d\'assemblar a l\'alumini. Avui sabem per què: els elements d\'un grup tenen els mateixos electrons de valència.'
+  },
+
+  {
+    id: 'm2-sal-sucre', nivell: 2, titol: 'Sal o sucre?', insignia: 'Detecció d\'enllaços',
+    preguntaImporta: 'La sal i el sucre semblen iguals dins del pot. Com els podries distingir sense tastar-los?',
+    fenomen: 'Tots dos són sòlids blancs, cristal·lins i es dissolen a l\'aigua. Però per dins són molt diferents.',
+    hipotesis: [
+      { t: 'Escalfant-los: un es fondrà abans que l\'altre.', comentari: 'Molt bona idea experimental: el sucre es fon i es caramel·litza a uns 186 °C; la sal no es fon fins als 801 °C.' },
+      { t: 'Dissolent-los a l\'aigua i mirant si condueixen el corrent.', comentari: 'Excel·lent: la dissolució de sal condueix (té ions) i la de sucre no (té molècules).' },
+      { t: 'Mirant-los amb lupa.', comentari: 'Una bona primera observació, però els cristalls s\'assemblen. Cal una prova que depengui de l\'estructura interna.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja coneixes proves per identificar el tipus d\'enllaç.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Interpretar una observació', conceptes: ['enllac', 'propietats'],
+        context: 'S\'escalfa una mica de cada sòlid en una paella. El sucre es fon i es torna caramel en pocs minuts. La sal es queda igual.',
+        pregunta: 'Quina explicació és correcta?',
+        opcions: [
+          { t: 'La sal és una xarxa d\'ions units per forces molt intenses; el sucre està format per molècules amb forces febles entre elles.', ok: true, fb: 'Correcte. Separar ions costa molta més energia.' },
+          { t: 'La sal no es fon mai perquè és un mineral.', ok: false, fb: 'La sal es fon, però a 801 °C, molt més que una paella.' },
+          { t: 'El sucre es fon perquè conté aigua.', ok: false, fb: 'El sucre sec també es fon. La causa és el tipus de partícules i les forces entre elles.' },
+          { t: 'Els enllaços del sucre són més forts que els de la sal.', ok: false, fb: 'Si fossin més forts, el sucre necessitaria més temperatura per fondre\'s.' }
+        ],
+        pistes: ['Fondre vol dir separar les partícules del sòlid.', 'La sal està feta d\'ions; el sucre, de molècules.'],
+        explicacio: 'La sal (NaCl) és un compost iònic: milions d\'ions Na⁺ i Cl⁻ s\'atreuen en totes direccions. El sucre és un compost covalent molecular: les molècules estan unides entre elles per forces febles, i es separen amb poca energia.',
+        elements: ['Na', 'Cl', 'C']
+      },
+      {
+        competencia: 'Predir i justificar', conceptes: ['enllac', 'ions'],
+        context: 'Dissols cada sòlid en un got d\'aigua destil·lada i hi connectes un circuit amb una bombeta.',
+        pregunta: 'Què predius?',
+        opcions: [
+          { t: 'La bombeta s\'encén amb la sal i no amb el sucre.', ok: true, fb: 'Correcte. Ho pots fer servir com a prova d\'identificació.' },
+          { t: 'S\'encén amb els dos, perquè tots dos estan dissolts.', ok: false, fb: 'Error habitual: pensar que tota dissolució condueix. Cal que hi hagi partícules amb càrrega que es puguin moure.' },
+          { t: 'No s\'encén amb cap, perquè l\'aigua és aïllant.', ok: false, fb: 'L\'aigua pura condueix molt poc, però en dissoldre-hi ions passa a conduir.' },
+          { t: 'S\'encén amb el sucre, perquè té més àtoms.', ok: false, fb: 'El nombre d\'àtoms no importa. El sucre no forma ions a l\'aigua.' }
+        ],
+        pistes: ['Què ha de tenir una dissolució per conduir el corrent?', 'Quina de les dues substàncies allibera partícules amb càrrega?'],
+        explicacio: 'El corrent elèctric en una dissolució és el moviment de partícules amb càrrega. La sal allibera ions Na⁺ i Cl⁻; el sucre es dissol en molècules neutres. Per això l\'aigua de mar condueix i l\'aigua amb sucre, no.',
+        justificacio: {
+          pregunta: 'Per què la sal sòlida no condueix i dissolta sí?',
+          opcions: [
+            { t: 'Al sòlid, els ions estan fixos a la xarxa; dissolts, es poden moure.', ok: true, fb: 'Exacte. Calen càrregues que es puguin desplaçar.' },
+            { t: 'Perquè l\'aigua aporta els electrons.', ok: false, fb: 'Els portadors de càrrega són els ions de la sal, no electrons de l\'aigua.' },
+            { t: 'Perquè la sal sòlida no té ions.', ok: false, fb: 'Sí que en té, però no es poden moure.' }
+          ]
+        },
+        elements: ['Na', 'Cl']
+      },
+      {
+        competencia: 'Relacionar l\'enllaç amb les propietats', conceptes: ['enllac', 'propietats'],
+        context: 'Un tros de paper d\'alumini es pot doblegar i aixafar sense que es trenqui. Un cristall de sal, si el colpeges, es trenca en trossos.',
+        pregunta: 'Quina explicació és correcta?',
+        opcions: [
+          { t: 'Al metall, els electrons es mouen lliurement i mantenen units els àtoms encara que es desplacin; al cristall iònic, en desplaçar una capa s\'enfronten ions de la mateixa càrrega i es repel·leixen.', ok: true, fb: 'Correcte. És la diferència entre enllaç metàl·lic i enllaç iònic.' },
+          { t: 'L\'alumini és més fort que la sal.', ok: false, fb: 'Descriu el que passa, però no ho explica.' },
+          { t: 'La sal té enllaços més febles que l\'alumini.', ok: false, fb: 'Els enllaços iònics són molt forts (per això la sal es fon a 801 °C). El problema és la repulsió quan es desplacen.' },
+          { t: 'El paper d\'alumini porta plàstic per dins.', ok: false, fb: 'El paper d\'alumini és gairebé alumini pur.' }
+        ],
+        pistes: ['Pensa què passa amb els ions positius i negatius si una capa del cristall llisca una mica.', 'Als metalls hi ha un «mar» d\'electrons compartits.'],
+        explicacio: 'Enllaç metàl·lic: ions positius envoltats d\'electrons lliures. Si els àtoms llisquen, els electrons continuen unint-los: el metall és mal·leable i condueix. Enllaç iònic: si una capa llisca, queden cara a cara ions del mateix signe, es repel·leixen i el cristall es trenca: és fràgil.',
+        elements: ['Al', 'Na', 'Cl']
+      }
+    ],
+    tancament: 'Pots distingir la sal del sucre escalfant-los (el sucre es fon de seguida i la sal no) o dissolent-los i comprovant si condueixen el corrent (només la sal). Totes dues proves depenen del mateix: la sal està feta d\'ions i el sucre, de molècules. El tipus d\'enllaç explica les propietats.'
+  },
+
+  // =====================================================================
+  // NIVELL 3 — CIENTÍFIC (4t d'ESO · 1r de Batxillerat)
+  // =====================================================================
+  {
+    id: 'm3-potassi', nivell: 3, titol: 'Potassi a l\'aula?', insignia: 'Ciència responsable',
+    preguntaImporta: 'Per què el potassi reacciona amb l\'aigua amb més violència que el sodi? I seria segur comprovar-ho a classe?',
+    fenomen: 'El sodi corre per la superfície de l\'aigua i s\'escalfa. El potassi s\'inflama de seguida amb una flama lila i pot esquitxar.',
+    hipotesis: [
+      { t: 'El potassi té més electrons de valència.', comentari: 'Una suposició habitual. Tots dos en tenen un; la diferència és on es troba.' },
+      { t: 'L\'electró extern del potassi és més lluny del nucli i el perd més fàcilment.', comentari: 'Excel·lent: és la clau. Com més capes, menys atracció sobre l\'electró extern.' },
+      { t: 'El potassi és més pesant i xoca més fort amb l\'aigua.', comentari: 'La massa no explica la reactivitat. És una qüestió d\'electrons.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja pots justificar la tendència del grup amb la configuració electrònica.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Interpretar la configuració electrònica', conceptes: ['configuracio', 'valencia'],
+        context: 'Configuracions: sodi [Ne] 3s¹; potassi [Ar] 4s¹.',
+        pregunta: 'Què tenen en comú i en què es diferencien?',
+        opcions: [
+          { t: 'Tots dos tenen 1 electró s a la capa externa; al potassi és al nivell 4, més lluny del nucli.', ok: true, fb: 'Correcte. La configuració externa és la mateixa (ns¹), però el nivell n és diferent.' },
+          { t: 'El potassi té 4 electrons de valència i el sodi 3.', ok: false, fb: 'Error habitual: confondre el número del nivell (n) amb el nombre d\'electrons. El superíndex (¹) és el que indica els electrons.' },
+          { t: 'Tots dos tenen la capa externa completa.', ok: false, fb: 'Hi tenen un sol electró: estan lluny de tenir-la completa.' },
+          { t: 'El potassi té més electrons al nivell extern perquè té més protons.', ok: false, fb: 'Té més protons, però al nivell extern hi té igualment 1 electró.' }
+        ],
+        pistes: ['En una configuració, el número gran és el nivell i el superíndex el nombre d\'electrons.', 'Compara 3s¹ i 4s¹.'],
+        explicacio: 'Els dos són metalls alcalins amb configuració externa ns¹. El sodi té l\'electró extern al nivell 3 i el potassi al nivell 4. Aquesta diferència explica la seva reactivitat diferent.',
+        elements: ['Na', 'K']
+      },
+      {
+        competencia: 'Justificar una propietat periòdica', conceptes: ['periodiques', 'reactivitat'],
+        context: 'El potassi té 8 protons més que el sodi. Però també té una capa d\'electrons més entre el nucli i l\'electró extern.',
+        pregunta: 'Per què el potassi perd el seu electró extern més fàcilment?',
+        opcions: [
+          { t: 'Perquè l\'electró és més lluny del nucli i les capes internes fan de pantalla: la força d\'atracció que nota és menor.', ok: true, fb: 'Correcte. La distància i l\'apantallament guanyen a l\'augment de protons.' },
+          { t: 'Perquè té més protons, que empenyen l\'electró cap a fora.', ok: false, fb: 'Els protons atreuen els electrons; no els empenyen. Error amb el signe de la força.' },
+          { t: 'Perquè l\'electró del potassi té més massa.', ok: false, fb: 'Tots els electrons són iguals.' },
+          { t: 'Perquè el potassi té menys energia que el sodi.', ok: false, fb: 'És una frase massa vaga. Cal explicar-ho amb la distància i l\'atracció.' }
+        ],
+        pistes: ['La força d\'atracció disminueix amb la distància.', 'Els electrons interns «tapen» part de l\'atracció del nucli.'],
+        explicacio: 'En baixar per un grup, el radi atòmic augmenta i l\'energia d\'ionització (la que cal per arrencar l\'electró extern) disminueix. Per això la reactivitat dels alcalins augmenta: Li < Na < K < Rb < Cs.',
+        justificacio: {
+          pregunta: 'Quina predicció es dedueix d\'aquest raonament per al rubidi, [Kr] 5s¹?',
+          opcions: [
+            { t: 'Reaccionarà amb l\'aigua amb encara més violència que el potassi.', ok: true, fb: 'Exacte. El seu electró extern és al nivell 5.' },
+            { t: 'Reaccionarà menys, perquè és més pesant.', ok: false, fb: 'La massa no és el criteri; ho és l\'atracció sobre l\'electró extern.' },
+            { t: 'Reaccionarà igual que el sodi.', ok: false, fb: 'La tendència del grup indica que serà més reactiu.' }
+          ]
+        },
+        elements: ['K', 'Na', 'Rb']
+      },
+      {
+        competencia: 'Prendre decisions amb criteris de seguretat', conceptes: ['seguretat', 'reactivitat'],
+        context: 'Una alumna proposa comprovar a classe la diferència entre el sodi i el potassi tirant-ne un tros de cada un a l\'aigua.',
+        pregunta: 'Quina és la decisió més adequada?',
+        opcions: [
+          { t: 'No fer-ho amb potassi a l\'aula. Veure un vídeo fiable i, com a molt, una demostració del professorat amb un tros molt petit de sodi o liti, darrere d\'una pantalla i amb ulleres.', ok: true, fb: 'Correcte. Es pot observar la tendència sense exposar ningú a un risc innecessari.' },
+          { t: 'Fer-ho per grups, amb trossos grans perquè es vegi bé.', ok: false, fb: 'Perillós: el potassi pot inflamar l\'hidrogen que es forma i projectar hidròxid de potassi, que és corrosiu.' },
+          { t: 'Fer-ho amb guants, perquè així no hi ha cap risc.', ok: false, fb: 'Els guants no protegeixen dels esquitxos als ulls ni de les flames.' },
+          { t: 'Fer-ho amb rubidi, perquè és encara més espectacular.', ok: false, fb: 'El rubidi reacciona de manera explosiva. Seria encara més perillós.' }
+        ],
+        pistes: ['Quins productes es formen quan un alcalí reacciona amb l\'aigua?', 'Una bona decisió científica té en compte el risc, no només l\'interès.'],
+        explicacio: 'La reacció d\'un alcalí amb l\'aigua forma hidrogen (inflamable), calor i un hidròxid corrosiu: 2K + 2H₂O → 2KOH + H₂. La predicció científica ja és sòlida; no cal arriscar-se per comprovar-la.',
+        elements: ['K', 'Na', 'Li']
+      }
+    ],
+    tancament: 'El potassi reacciona més perquè el seu únic electró de valència és al nivell 4, més lluny del nucli i més apantallat que el del sodi. Per això el cedeix amb més facilitat. Saber predir-ho és també saber decidir: no cal posar ningú en perill per comprovar el que la configuració electrònica ja ens diu.'
+  },
+
+  {
+    id: 'm3-liti', nivell: 3, titol: 'El metall de les bateries', insignia: 'Energia en un electró',
+    preguntaImporta: 'Per què les bateries dels mòbils són de liti i no de sodi, si el sodi és molt més abundant i barat?',
+    fenomen: 'El sodi és un dels elements més abundants de l\'escorça terrestre i de l\'aigua del mar. El liti és escàs i s\'extreu de poques zones del planeta.',
+    hipotesis: [
+      { t: 'El liti és més lleuger i una bateria de liti pesa menys.', comentari: 'Molt ben pensat: el liti és el metall més lleuger, i en un mòbil cada gram compta.' },
+      { t: 'El sodi no pot cedir electrons.', comentari: 'El sodi els cedeix fins i tot més fàcilment. La raó és una altra.' },
+      { t: 'El sodi és radioactiu.', comentari: 'El sodi no és radioactiu. La diferència és la massa i la mida de l\'ió.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja pots argumentar la tria d\'un material tecnològic.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Relacionar estructura i aplicació', conceptes: ['configuracio', 'ions'],
+        context: 'Configuració del liti: 1s² 2s¹. En una bateria, el liti cedeix el seu electró extern, que circula pel circuit, i l\'ió Li⁺ es mou per dins de la bateria.',
+        pregunta: 'Quina característica fa que el liti funcioni en una bateria?',
+        opcions: [
+          { t: 'Té un sol electró de valència, que cedeix amb facilitat formant Li⁺.', ok: true, fb: 'Correcte. Aquest electró és el que genera el corrent elèctric.' },
+          { t: 'Té la capa externa completa.', ok: false, fb: 'Si la tingués completa no cediria electrons i no serviria per a una bateria.' },
+          { t: 'Capta electrons fàcilment formant Li⁻.', ok: false, fb: 'Error habitual: confondre metalls i no metalls. Els metalls alcalins cedeixen electrons.' },
+          { t: 'Té 3 electrons de valència.', ok: false, fb: 'Té 3 electrons en total, però només 1 a la capa externa (2s¹).' }
+        ],
+        pistes: ['Mira la configuració: quants electrons hi ha al nivell 2?', 'Una bateria necessita una substància que cedeixi electrons.'],
+        explicacio: 'El liti, com tots els alcalins, té configuració externa ns¹. Cedeix l\'electró amb facilitat i forma Li⁺. Aquest flux d\'electrons pel circuit és el corrent que alimenta el mòbil.',
+        elements: ['Li']
+      },
+      {
+        competencia: 'Comparar i argumentar amb dades', conceptes: ['propietats', 'periodiques'],
+        context: 'Massa atòmica: liti 6,94 u; sodi 22,99 u. Cada àtom de liti o de sodi aporta 1 electró a la bateria.',
+        pregunta: 'Per què el liti és millor per a un mòbil?',
+        opcions: [
+          { t: 'Per la mateixa massa, hi ha uns 3 cops més àtoms de liti i, per tant, més electrons disponibles: la bateria pesa menys per la mateixa energia.', ok: true, fb: 'Correcte. És la idea de densitat d\'energia.' },
+          { t: 'Perquè el liti cedeix electrons més fàcilment que el sodi.', ok: false, fb: 'Al contrari: el sodi, més avall al grup, els cedeix més fàcilment. La raó és la massa.' },
+          { t: 'Perquè cada àtom de liti aporta 3 electrons.', ok: false, fb: 'Només aporta 1, l\'electró de valència.' },
+          { t: 'Perquè el liti és més abundant.', ok: false, fb: 'El sodi és molt més abundant.' }
+        ],
+        pistes: ['Calcula quantes vegades és més pesant un àtom de sodi que un de liti.', 'Si cada àtom aporta 1 electró, quin metall en dona més per gram?'],
+        explicacio: '22,99 / 6,94 ≈ 3,3. En 1 g de liti hi ha unes 3,3 vegades més àtoms que en 1 g de sodi, i per tant més electrons per al circuit. Per això les bateries de sodi, que ja existeixen, s\'utilitzen sobretot on el pes no importa, com en l\'emmagatzematge d\'energia a les xarxes elèctriques.',
+        justificacio: {
+          pregunta: 'On té sentit utilitzar bateries de sodi?',
+          opcions: [
+            { t: 'En instal·lacions fixes, on el pes no importa i el baix cost i l\'abundància del sodi són avantatges.', ok: true, fb: 'Exacte. L\'elecció depèn de l\'aplicació.' },
+            { t: 'En rellotges intel·ligents, perquè són petits.', ok: false, fb: 'En aparells petits i lleugers el pes és crític: el liti hi és més adequat.' },
+            { t: 'Enlloc: el sodi no serveix per fer bateries.', ok: false, fb: 'Sí que serveix: ja hi ha bateries d\'ions de sodi.' }
+          ]
+        },
+        elements: ['Li', 'Na']
+      },
+      {
+        competencia: 'Prendre decisions amb criteris de seguretat', conceptes: ['seguretat', 'reactivitat'],
+        context: 'Les companyies aèries no permeten portar bateries de liti de recanvi a la bodega de l\'avió, però sí a la cabina.',
+        pregunta: 'Quina és la raó més probable?',
+        opcions: [
+          { t: 'Si una bateria es danya o s\'escalfa, pot incendiar-se. A la cabina el personal ho pot detectar i apagar de seguida.', ok: true, fb: 'Correcte. El risc existeix en tots dos llocs; la diferència és poder actuar ràpidament.' },
+          { t: 'A la bodega fa fred i les bateries es descarreguen.', ok: false, fb: 'La norma és de seguretat, no de rendiment.' },
+          { t: 'Les bateries de liti són radioactives.', ok: false, fb: 'El liti no és radioactiu.' },
+          { t: 'El liti pot reaccionar amb l\'oxigen de la bodega i fer-la explotar sempre.', ok: false, fb: 'Les bateries estan tancades i normalment són segures. El risc apareix si es danyen.' }
+        ],
+        pistes: ['Pensa en el que passa quan una bateria es perfora o es sobreescalfa.', 'On és més fàcil actuar si passa alguna cosa?'],
+        explicacio: 'La mateixa propietat que fa útil el liti (cedeix electrons amb molta facilitat) el fa perillós si la bateria es danya: pot iniciar una reacció que s\'escalfa sola. Per això no s\'han de perforar, escalfar ni llençar a les escombraries comunes.',
+        elements: ['Li']
+      }
+    ],
+    tancament: 'El liti té un sol electró de valència, com el sodi, però és tres vegades més lleuger. Una bateria de liti emmagatzema molta més energia per gram, i això és decisiu en un mòbil. El sodi, abundant i barat, és una bona opció on el pes no importa. Escollir un material és combinar estructura, propietats, cost i seguretat.'
+  },
+
+  {
+    id: 'm3-coure', nivell: 3, titol: 'La columna dels conductors', insignia: 'Lectura d\'orbitals',
+    preguntaImporta: 'Els tres metalls que millor condueixen l\'electricitat (plata, coure i or) són a la mateixa columna de la taula. És casualitat?',
+    fenomen: 'Ordre de conductivitat elèctrica: plata > coure > or > alumini. Els tres primers són al grup 11.',
+    hipotesis: [
+      { t: 'És casualitat.', comentari: 'A la taula periòdica gairebé res és casual: les columnes agrupen elements amb configuracions externes semblants.' },
+      { t: 'Tenen una configuració electrònica externa semblant que els dona electrons molt mòbils.', comentari: 'Excel·lent: tots tres tenen un electró s solitari sobre un subnivell d complet.' },
+      { t: 'Són els metalls més cars.', comentari: 'El coure no és car. La raó és estructural.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja saps llegir una excepció a la configuració electrònica.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Interpretar una excepció', conceptes: ['configuracio'],
+        context: 'Segons l\'ordre d\'Aufbau, el coure hauria de ser [Ar] 4s² 3d⁹. La seva configuració real és [Ar] 4s¹ 3d¹⁰. Obre la fitxa del coure i mira el diagrama d\'orbitals.',
+        pregunta: 'Com s\'explica?',
+        opcions: [
+          { t: 'Un subnivell d complet és especialment estable, i com que els nivells 4s i 3d tenen energies molt properes, un electró passa del 4s al 3d.', ok: true, fb: 'Correcte. L\'energia total de l\'àtom és menor així.' },
+          { t: 'El coure té un electró menys.', ok: false, fb: 'Compta-ho: 18 + 1 + 10 = 29. El coure té 29 electrons.' },
+          { t: 'L\'ordre d\'Aufbau no s\'aplica mai als metalls de transició.', ok: false, fb: 'S\'aplica a la majoria; les excepcions són poques i concretes.' },
+          { t: 'És un error de la taula.', ok: false, fb: 'És la configuració que s\'ha mesurat experimentalment.' }
+        ],
+        pistes: ['Compta les fletxes de les caixes 3d.', 'Quan dos subnivells tenen energies molt properes, l\'àtom adopta la distribució més estable.'],
+        explicacio: 'L\'ordre d\'Aufbau és una regla aproximada. Quan dos subnivells tenen energies molt semblants (4s i 3d), la configuració real pot deixar un subnivell d ple (d¹⁰) o semiple (d⁵). Passa amb el coure, la plata, l\'or i també amb el crom.',
+        elements: ['Cu', 'Cr']
+      },
+      {
+        competencia: 'Observar patrons a la taula', conceptes: ['configuracio', 'taula', 'propietats'],
+        context: 'Configuracions abreujades: coure [Ar] 4s¹ 3d¹⁰; plata [Kr] 5s¹ 4d¹⁰; or [Xe] 6s¹ 4f¹⁴ 5d¹⁰.',
+        pregunta: 'Quina relació hi ha entre aquesta configuració i la conductivitat?',
+        opcions: [
+          { t: 'Els tres tenen un únic electró s extern, poc retingut, que es pot moure amb molta facilitat pel metall.', ok: true, fb: 'Correcte. Aquest electró «solitari» és molt mòbil.' },
+          { t: 'Tenen molts electrons desaparellats.', ok: false, fb: 'Només en tenen un. Comprova-ho als diagrames d\'orbitals.' },
+          { t: 'Tenen la capa externa completa.', ok: false, fb: 'Una capa externa completa faria l\'element molt estable i poc conductor, com els gasos nobles.' },
+          { t: 'No hi ha cap relació entre configuració i propietats.', ok: false, fb: 'Les propietats depenen de l\'estructura electrònica. Aquest és el sentit de la taula.' }
+        ],
+        pistes: ['Fixa\'t en el que hi ha a fora dels claudàtors.', 'Quants electrons s externs té cada un?'],
+        explicacio: 'Tots tres acaben en ns¹ (n−1)d¹⁰. L\'electró s extern és poc retingut i forma part del «mar» d\'electrons que es mou pel metall quan hi apliquem un voltatge. Mateixa columna, configuració semblant, propietats semblants.',
+        justificacio: {
+          pregunta: 'Si la plata és el millor conductor, per què els contactes dels connectors són d\'or?',
+          opcions: [
+            { t: 'Perquè l\'or no s\'oxida ni s\'ennegreix, i el contacte continua conduint bé durant anys.', ok: true, fb: 'Exacte. Una propietat sola no decideix: cal pensar en tot el que demana l\'aplicació.' },
+            { t: 'Perquè l\'or condueix millor que la plata.', ok: false, fb: 'Condueix una mica pitjor.' },
+            { t: 'Perquè l\'or és més barat.', ok: false, fb: 'L\'or és molt més car que la plata. S\'utilitza en capes molt primes.' }
+          ]
+        },
+        elements: ['Cu', 'Ag', 'Au']
+      },
+      {
+        competencia: 'Resoldre una situació real', conceptes: ['propietats', 'reactivitat'],
+        context: 'Les línies elèctriques d\'alta tensió no són de coure: són d\'alumini (amb un nucli d\'acer). L\'alumini condueix pitjor que el coure, però té una densitat tres vegades menor.',
+        pregunta: 'Per què s\'utilitza alumini?',
+        opcions: [
+          { t: 'Perquè per la mateixa capacitat de conduir, un cable d\'alumini pesa molt menys, i les torres poden estar més separades.', ok: true, fb: 'Correcte. En quilòmetres de cable penjat, el pes és decisiu.' },
+          { t: 'Perquè l\'alumini condueix millor que el coure.', ok: false, fb: 'Condueix pitjor. La raó és un altre avantatge.' },
+          { t: 'Perquè l\'alumini no s\'oxida gens.', ok: false, fb: 'S\'oxida, però forma una capa fina d\'òxid que el protegeix. No és el motiu principal.' },
+          { t: 'Perquè el coure és tòxic.', ok: false, fb: 'El coure no és tòxic en l\'ús elèctric.' }
+        ],
+        pistes: ['Pensa en un cable de molts quilòmetres penjat entre torres.', 'Quina propietat de l\'alumini és avantatjosa aquí?'],
+        explicacio: 'Escollir un material és un problema amb diversos criteris. Als cables d\'una casa, el coure és millor perquè ocupa menys espai. A les línies d\'alta tensió, la lleugeresa de l\'alumini compensa que condueixi una mica pitjor.',
+        elements: ['Al', 'Cu', 'Fe']
+      }
+    ],
+    tancament: 'No és casualitat. El coure, la plata i l\'or tenen la mateixa configuració externa: un electró s solitari sobre un subnivell d complet. Aquest electró es mou amb molta facilitat, i per això són els millors conductors. La columna de la taula reflecteix l\'estructura electrònica.'
+  },
+
+  {
+    id: 'm3-lleixiu', nivell: 3, titol: 'No ho barregis!', insignia: 'Química segura',
+    preguntaImporta: 'Per què l\'etiqueta del lleixiu adverteix que no el barregis mai amb altres productes de neteja?',
+    fenomen: 'Cada any hi ha intoxicacions domèstiques per barrejar lleixiu amb salfumant o amb amoníac per «netejar més».',
+    hipotesis: [
+      { t: 'Perquè junts deixen de netejar.', comentari: 'El problema és més greu: en reaccionar es poden formar gasos tòxics.' },
+      { t: 'Perquè poden reaccionar i formar un gas tòxic.', comentari: 'Exacte. Amb salfumant es desprèn clor; amb amoníac, cloramines. Tots dos són tòxics.' },
+      { t: 'Perquè el lleixiu és inflamable.', comentari: 'El lleixiu no és inflamable. El perill són els gasos que es poden formar.' },
+      { t: 'Encara no en tinc ni idea.', comentari: 'Ara ja pots llegir una etiqueta de seguretat amb criteri químic.' }
+    ],
+    reptes: [
+      {
+        competencia: 'Prendre decisions amb criteris de seguretat', conceptes: ['seguretat'],
+        context: 'El lleixiu conté hipoclorit de sodi (NaClO). El salfumant és àcid clorhídric (HCl). Si es barregen: NaClO + 2 HCl → Cl₂ + NaCl + H₂O.',
+        pregunta: 'Què li diries a qui vol barrejar-los per netejar un bany molt brut?',
+        opcions: [
+          { t: 'Que no ho faci mai: es desprèn clor (Cl₂), un gas tòxic que danya les vies respiratòries.', ok: true, fb: 'Correcte. I si passa per accident, cal sortir de l\'espai, ventilar i trucar al 112.' },
+          { t: 'Que ho faci amb la finestra tancada perquè no s\'escapi l\'efecte.', ok: false, fb: 'Molt perillós: el gas s\'acumularia a l\'habitació.' },
+          { t: 'Que ho faci, perquè dos productes de neteja sempre netegen més.', ok: false, fb: 'Error habitual. Alguns productes reaccionen entre ells i formen substàncies perilloses.' },
+          { t: 'Que hi afegeixi aigua calenta per reforçar-los.', ok: false, fb: 'La calor fa que el gas es desprengui més de pressa.' }
+        ],
+        pistes: ['Mira els productes de la reacció.', 'Obre la fitxa del clor: com és el Cl₂?'],
+        explicacio: 'L\'àcid fa que l\'hipoclorit alliberi clor gas. El clor és un halogen: té 7 electrons de valència, és molt reactiu i ataca els teixits humits dels pulmons i els ulls. Per això el lleixiu no s\'ha de barrejar amb àcids ni amb amoníac.',
+        elements: ['Cl', 'Na']
+      },
+      {
+        competencia: 'Comparar i justificar amb propietats periòdiques', conceptes: ['periodiques', 'reactivitat', 'configuracio'],
+        context: 'Electronegativitat (capacitat d\'atreure els electrons d\'un enllaç): F 3,98 · Cl 3,16 · Br 2,96 · I 2,66. Els halògens reaccionen captant 1 electró.',
+        pregunta: 'Per què el fluor és el més reactiu dels halògens?',
+        opcions: [
+          { t: 'Té els electrons externs al nivell 2, més a prop del nucli: l\'electró que capta queda més fortament atret.', ok: true, fb: 'Correcte. L\'electronegativitat disminueix en baixar per un grup.' },
+          { t: 'Té més protons que els altres halògens.', ok: false, fb: 'En té menys: 9, davant dels 17 del clor.' },
+          { t: 'Té més electrons de valència.', ok: false, fb: 'Tots els halògens en tenen 7 (ns² np⁵).' },
+          { t: 'És el més pesant.', ok: false, fb: 'És el més lleuger del grup.' }
+        ],
+        pistes: ['Els halògens guanyen electrons; els alcalins en perden. La tendència és la mateixa o la inversa?', 'On queda l\'electró captat en un àtom petit?'],
+        explicacio: 'Als alcalins, la reactivitat augmenta en baixar pel grup perquè els costa menys perdre l\'electró extern. Als halògens passa al contrari: reaccionen captant un electró, i això és més fàcil com més a prop del nucli queda. El fluor és el més electronegatiu de tota la taula.',
+        justificacio: {
+          pregunta: 'Per què la reactivitat dels halògens i la dels alcalins tenen tendències oposades dins del grup?',
+          opcions: [
+            { t: 'Perquè els alcalins reaccionen perdent electrons i els halògens captant-ne, i la distància al nucli afavoreix el primer i dificulta el segon.', ok: true, fb: 'Exacte. El mateix factor (la distància) té efectes contraris.' },
+            { t: 'Perquè els halògens són gasos.', ok: false, fb: 'El brom és líquid i el iode sòlid, i la tendència es manté.' },
+            { t: 'És una casualitat.', ok: false, fb: 'Té una explicació clara a partir de l\'estructura electrònica.' }
+          ]
+        },
+        elements: ['F', 'Cl', 'Br', 'I']
+      },
+      {
+        competencia: 'Predir el tipus d\'enllaç', conceptes: ['enllac', 'periodiques'],
+        context: 'Electronegativitats: Na 0,93 · H 2,20 · Cl 3,16. El clorur de sodi (NaCl) és un sòlid que es fon a 801 °C. El clorur d\'hidrogen (HCl) pur és un gas.',
+        pregunta: 'Quina predicció sobre l\'enllaç és coherent amb les dades?',
+        opcions: [
+          { t: 'NaCl: enllaç iònic (diferència d\'electronegativitat gran, 2,23). HCl: enllaç covalent polar (diferència moderada, 0,96).', ok: true, fb: 'Correcte. La diferència d\'electronegativitat orienta el tipus d\'enllaç.' },
+          { t: 'Tots dos són iònics perquè contenen clor.', ok: false, fb: 'No depèn d\'un element sinó de la diferència entre els dos.' },
+          { t: 'Tots dos són covalents apolars.', ok: false, fb: 'Un enllaç apolar només es dona quan la diferència és gairebé zero, com al Cl₂.' },
+          { t: 'NaCl covalent i HCl iònic.', ok: false, fb: 'És al revés: la diferència més gran és la del NaCl.' }
+        ],
+        pistes: ['Resta les electronegativitats de cada parell.', 'Diferència gran: un àtom pren l\'electró de l\'altre. Diferència moderada: es comparteix de manera desigual.'],
+        explicacio: 'Amb una diferència d\'electronegativitat gran (més d\'1,7 aproximadament), un àtom pren l\'electró de l\'altre i es formen ions. Amb una diferència moderada, l\'electró es comparteix però queda desplaçat cap a l\'àtom més electronegatiu: és un enllaç covalent polar.',
+        elements: ['Na', 'H', 'Cl']
+      }
+    ],
+    tancament: 'El lleixiu conté clor en forma d\'hipoclorit. Amb un àcid allibera clor gas, i amb amoníac, cloramines: substàncies tòxiques que ataquen les vies respiratòries. El clor és un halogen molt reactiu perquè li falta un sol electró per completar la capa externa. Entendre la química d\'una etiqueta és aprendre a protegir-se.'
+  }
+];
+
+/* ---------- Generadors de reptes de reforç ----------
+   Creen reptes nous a partir de les dades de la taula quan l'alumne necessita reforçar un concepte. */
+window.MA_GENERADORS = [
+  // Nivell 1: partícules, Z i isòtops
+  {
+    nivell: 1, conceptes: ['particules', 'za', 'isotops'],
+    crear: function (C, aleatori) {
+      var candidats = C.taula.llista.filter(function (e) { return e.z <= 36 && e.nombreMassic; });
+      var e = aleatori(candidats), n = e.nombreMassic - e.z;
+      var seguent = C.taula.perZ[e.z + 1];
+      return {
+        id: 'gen-p-' + e.simbol, nivell: 1, generat: true, competencia: 'Interpretar dades', conceptes: ['particules', 'za', 'isotops'],
+        context: 'Un àtom neutre té ' + e.z + ' protons, ' + n + ' neutrons i ' + e.z + ' electrons.',
+        pregunta: 'Quina afirmació és correcta?',
+        opcions: [
+          { t: 'És ' + e.nom + '. Si tingués un neutró més, continuaria sent ' + e.nom + ' (un altre isòtop).', ok: true, fb: 'Correcte. L\'element el determina el nombre de protons.' },
+          { t: 'Si tingués un neutró més, seria ' + seguent.nom + ', l\'element següent de la taula.', ok: false, fb: 'Error habitual. Canviar neutrons dona un altre isòtop del mateix element; canviar protons, un altre element.' },
+          { t: 'El seu nombre atòmic és ' + (e.z + n) + '.', ok: false, fb: 'Aquest és el nombre màssic (protons + neutrons). El nombre atòmic només compta protons.' },
+          { t: 'Si perdés un electró, es convertiria en un altre element.', ok: false, fb: 'Si perd un electró es converteix en un ió positiu del mateix element.' }
+        ],
+        pistes: ['Què defineix un element: els protons, els neutrons o els electrons?', 'Z compta protons. A = protons + neutrons.'],
+        explicacio: 'Té Z = ' + e.z + ', per tant és ' + e.nom + ' (' + e.simbol + '). El seu nombre màssic és A = ' + e.z + ' + ' + n + ' = ' + e.nombreMassic + '. Els isòtops d\'un element tenen el mateix nombre de protons i diferent nombre de neutrons.',
+        elements: [e.simbol]
+      };
+    }
+  },
+  // Nivell 2: electrons de valència i ions
+  {
+    nivell: 2, conceptes: ['valencia', 'ions'],
+    crear: function (C, aleatori) {
+      var candidats = C.taula.llista.filter(function (e) {
+        var g = e.posicio.grup;
+        return e.z > 2 && e.z <= 38 && (g === 1 || g === 2 || g === 16 || g === 17 || g === 18);
+      });
+      var e = aleatori(candidats), g = e.posicio.grup;
+      var opcions = [
+        { clau: 1, t: 'Cedirà 1 electró i formarà un ió +1' },
+        { clau: 2, t: 'Cedirà 2 electrons i formarà un ió +2' },
+        { clau: 16, t: 'Captarà 2 electrons i formarà un ió −2' },
+        { clau: 17, t: 'Captarà 1 electró i formarà un ió −1' },
+        { clau: 18, t: 'Pràcticament no reaccionarà' }
+      ];
+      var raons = {
+        1: 'Té 1 electró a la capa externa: perdre\'l és el camí més fàcil per quedar amb la capa anterior completa.',
+        2: 'Té 2 electrons a la capa externa: els cedeix i queda amb la configuració del gas noble anterior.',
+        16: 'Té 6 electrons a la capa externa: li\'n falten 2 per completar-la.',
+        17: 'Té 7 electrons a la capa externa: li\'n falta 1 per completar-la.',
+        18: 'Té la capa externa completa: és un gas noble.'
+      };
+      var correcta = opcions.filter(function (o) { return o.clau === g; })[0];
+      var altres = opcions.filter(function (o) { return o.clau !== g; }).sort(function () { return Math.random() - 0.5; }).slice(0, 3);
+      return {
+        id: 'gen-v-' + e.simbol, nivell: 2, generat: true, competencia: 'Interpretar dades i predir', conceptes: ['valencia', 'ions'],
+        context: 'Un element desconegut té aquesta distribució d\'electrons per capes: ' + e.capes.join(', ') + '.',
+        pregunta: 'Quin comportament químic és esperable?',
+        opcions: [correcta].concat(altres).map(function (o) {
+          return { t: o.t, ok: o === correcta, fb: (o === correcta ? 'Correcte. ' : 'No. ') + raons[g] };
+        }),
+        pistes: ['Fixa\'t només en l\'última xifra: són els electrons de valència.', 'Els àtoms tendeixen a quedar amb 8 electrons a la capa externa (2 si només tenen una capa).'],
+        explicacio: 'És el ' + e.nom + ' (' + e.simbol + '), del grup ' + g + '. ' + raons[g],
+        elements: [e.simbol]
+      };
+    }
+  },
+  // Nivell 3: reactivitat dins d'un grup
+  {
+    nivell: 3, conceptes: ['reactivitat', 'periodiques', 'configuracio'],
+    crear: function (C, aleatori) {
+      var grup = Math.random() < 0.5 ? 1 : 17;
+      var membres = C.taula.llista.filter(function (e) { return e.posicio.grup === grup && e.z > 1 && e.z <= 55; });
+      var a = aleatori(membres), b;
+      do { b = aleatori(membres); } while (b === a);
+      var dalt = a.z < b.z ? a : b, baix = a.z < b.z ? b : a;
+      var mes = grup === 1 ? baix : dalt, menys = mes === dalt ? baix : dalt;
+      var rao = grup === 1
+        ? 'Els alcalins reaccionen cedint l\'electró extern. Com més lluny del nucli (nivell més alt), més fàcil és cedir-lo.'
+        : 'Els halògens reaccionen captant un electró. Com més a prop del nucli (nivell més baix), més fort l\'atreuen.';
+      function M(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+      return {
+        id: 'gen-r-' + dalt.simbol + baix.simbol, nivell: 3, generat: true, competencia: 'Comparar i justificar', conceptes: ['reactivitat', 'periodiques', 'configuracio'],
+        context: 'Compara ' + dalt.nom + ' (' + dalt.configAbreujada + ') i ' + baix.nom + ' (' + baix.configAbreujada + ').',
+        pregunta: 'Quin és més reactiu i per què?',
+        opcions: [
+          { t: M(mes.nom) + ', perquè ' + (grup === 1 ? 'el seu electró extern és més lluny del nucli i es cedeix més fàcilment.' : 'l\'electró que capta queda més a prop del nucli i és més atret.'), ok: true, fb: 'Correcte. ' + rao },
+          { t: M(menys.nom) + ', perquè té ' + (menys.z > mes.z ? 'més' : 'menys') + ' electrons en total.', ok: false, fb: 'El nombre total d\'electrons no és el criteri. ' + rao },
+          { t: 'Tots dos igual, perquè tenen els mateixos electrons de valència.', ok: false, fb: 'Tenen els mateixos electrons de valència, però en nivells diferents. ' + rao },
+          { t: M(menys.nom) + ', perquè ' + (grup === 1 ? 'el seu nucli atreu menys l\'electró extern.' : 'té més capes i hi caben més electrons.'), ok: false, fb: 'El raonament és al revés. ' + rao }
+        ],
+        pistes: [grup === 1 ? 'Aquests elements reaccionen perdent electrons.' : 'Aquests elements reaccionen guanyant electrons.', 'Compara el nivell (n) on és la capa externa de cada un.'],
+        explicacio: rao + ' Per tant, el ' + mes.nom + ' és més reactiu que el ' + menys.nom + '.',
+        elements: [dalt.simbol, baix.simbol]
+      };
+    }
+  }
+];
+
+</script>
+<script>
+/* joc.js */
+/* MISSIÓ ÀTOM — Motor de les missions
+   Recorregut de cada missió:
+     1. Pregunta que importa → l'alumne formula una hipòtesi (es valora pensar, no encertar)
+     2. Tres reptes encadenats: segon intent després d'un error, pistes progressives,
+        i una pregunta de justificació que puntua el raonament
+     3. Tancament: es torna a la pregunta inicial i es contrasta amb la hipòtesi
+   Els conceptes amb errors es poden reforçar amb reptes de missions anteriors i reptes generats.
+   ES5 per compatibilitat amb iPads antics. */
+(function () {
+  'use strict';
+
+  var MISSIONS = window.MA_MISSIONS || [];
+  var NIVELLS = window.MA_NIVELLS || {};
+  var CONCEPTES = window.MA_CONCEPTES || {};
+  var GENERADORS = window.MA_GENERADORS || [];
+
+  var PUNTS = {
+    hipotesi: 5,
+    encert: { 1: 10, 2: 15, 3: 20 },
+    raonament: { 1: 5, 2: 8, 3: 10 },
+    pista: 2,
+    missio: 10
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function barrejar(llista) {
+    var a = llista.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function aleatori(llista) { return llista[Math.floor(Math.random() * llista.length)]; }
+  var LLETRES = ['A', 'B', 'C', 'D', 'E'];
+
+  // ---------------------------------------------------------------------
+  // Estat de la sessió
+  // ---------------------------------------------------------------------
+  var E = {
+    pantalla: 'mapa',          // mapa | pregunta | repte | tancament
+    punts: 0,
+    puntsRaonament: 0,
+    nivellRecomanat: 1,
+    fetes: {},                 // id missió → { encerts, total, raonament, raonamentTotal }
+    insignies: [],
+    conceptes: {},             // clau → { ok, ko }
+    vistos: [],                // reptes vistos recentment (per evitar repeticions al reforç)
+    missio: null,              // missió en curs (o missió de reforç)
+    hipotesi: null, hipotesiText: '',
+    iRepte: 0,
+    r: null                    // estat del repte en curs
+  };
+
+  function missioPerId(id) { for (var i = 0; i < MISSIONS.length; i++) if (MISSIONS[i].id === id) return MISSIONS[i]; return null; }
+
+  function missioRecomanada() {
+    var n = E.nivellRecomanat;
+    var pendents = MISSIONS.filter(function (m) { return !E.fetes[m.id]; });
+    var delNivell = pendents.filter(function (m) { return m.nivell === n; });
+    if (delNivell.length) return delNivell[0];
+    var seguents = pendents.filter(function (m) { return m.nivell > n; });
+    if (seguents.length) return seguents[0];
+    return pendents[0] || null;
+  }
+
+  function conceptesAReforcar() {
+    return Object.keys(E.conceptes).filter(function (k) {
+      var c = E.conceptes[k];
+      return c.ko > 0 && c.ko >= c.ok;
+    });
+  }
+
+  function registrarConcepte(llista, ok) {
+    (llista || []).forEach(function (k) {
+      if (!E.conceptes[k]) E.conceptes[k] = { ok: 0, ko: 0 };
+      if (ok) E.conceptes[k].ok++; else E.conceptes[k].ko++;
+    });
+  }
+
+  // ---------------------------------------------------------------------
+  // Accions
+  // ---------------------------------------------------------------------
+  function obrirMissio(id) {
+    var m = missioPerId(id);
+    if (!m) return;
+    E.missio = m;
+    E.hipotesi = null;
+    E.hipotesiText = '';
+    E.iRepte = 0;
+    E.resultat = { encerts: 0, raonament: 0, raonamentTotal: 0, errors: {} };
+    E.pantalla = 'pregunta';
+    pintar();
+  }
+
+  function guardarHipotesi() {
+    if (E.hipotesi === null) return;
+    var area = $('hipotesi-text');
+    E.hipotesiText = area ? area.value.trim() : '';
+    E.punts += PUNTS.hipotesi;
+    iniciarRepte(0);
+  }
+
+  function iniciarRepte(i) {
+    E.iRepte = i;
+    var q = E.missio.reptes[i];
+    E.r = {
+      q: q, opcions: barrejar(q.opcions), triada: null, descartades: [],
+      intent: 1, resolt: false, encert: false, pistes: 0,
+      jOpcions: q.justificacio ? barrejar(q.justificacio.opcions) : null, jTriada: null, jResolt: false,
+      missatge: ''
+    };
+    E.vistos.push(q.id || q.pregunta);
+    if (E.vistos.length > 12) E.vistos.shift();
+    E.pantalla = 'repte';
+    pintar();
+  }
+
+  function confirmar() {
+    var r = E.r;
+    if (!r || r.triada === null || r.resolt) return;
+    var o = r.opcions[r.triada];
+    var nivell = r.q.nivell || E.missio.nivell;
+    if (o.ok) {
+      r.resolt = true;
+      r.encert = true;
+      var base = PUNTS.encert[nivell];
+      if (r.intent === 2) base = Math.round(base / 2);
+      E.punts += Math.max(1, base - r.pistes * PUNTS.pista);
+      if (r.intent === 1) E.resultat.encerts++;
+      registrarConcepte(r.q.conceptes, r.intent === 1);
+    } else if (r.intent === 1) {
+      r.descartades.push(r.triada);
+      r.missatge = o.fb;
+      r.triada = null;
+      r.intent = 2;
+      (r.q.conceptes || []).forEach(function (k) { E.resultat.errors[k] = true; });
+    } else {
+      r.descartades.push(r.triada);
+      r.resolt = true;
+      r.encert = false;
+      registrarConcepte(r.q.conceptes, false);
+    }
+    pintar();
+  }
+
+  function confirmarJustificacio() {
+    var r = E.r;
+    if (!r || r.jTriada === null || r.jResolt) return;
+    r.jResolt = true;
+    var nivell = r.q.nivell || E.missio.nivell;
+    E.resultat.raonamentTotal++;
+    if (r.jOpcions[r.jTriada].ok) {
+      E.resultat.raonament++;
+      E.punts += PUNTS.raonament[nivell];
+      E.puntsRaonament += PUNTS.raonament[nivell];
+    }
+    pintar();
+  }
+
+  function seguent() {
+    if (E.iRepte + 1 < E.missio.reptes.length) { iniciarRepte(E.iRepte + 1); return; }
+    acabarMissio();
+  }
+
+  function acabarMissio() {
+    var m = E.missio, res = E.resultat;
+    E.pantalla = 'tancament';
+    if (!m.esReforc) {
+      var primeraVegada = !E.fetes[m.id];
+      E.fetes[m.id] = { encerts: res.encerts, total: m.reptes.length, raonament: res.raonament, raonamentTotal: res.raonamentTotal };
+      if (primeraVegada) {
+        E.punts += PUNTS.missio;
+        E.insignies.push(m.insignia);
+      }
+      // Adaptació: 2 o més encerts al primer intent → es recomana el nivell següent
+      if (res.encerts >= 2 && m.nivell >= E.nivellRecomanat && E.nivellRecomanat < 3) {
+        var queden = MISSIONS.filter(function (x) { return x.nivell === E.nivellRecomanat && !E.fetes[x.id]; }).length;
+        if (res.encerts === m.reptes.length || queden <= 2) E.nivellRecomanat++;
+      } else if (res.encerts <= 1 && E.nivellRecomanat > 1 && m.nivell >= E.nivellRecomanat) {
+        E.nivellRecomanat--;
+      }
+    }
+    pintar();
+  }
+
+  function iniciarReforc(concepte) {
+    var nivellMax = Math.max(1, E.nivellRecomanat);
+    var candidats = [];
+    MISSIONS.forEach(function (m) {
+      if (m.nivell > nivellMax) return;
+      m.reptes.forEach(function (q) {
+        if ((q.conceptes || []).indexOf(concepte) !== -1 && E.vistos.indexOf(q.id || q.pregunta) === -1) {
+          var copia = {}; for (var k in q) copia[k] = q[k];
+          copia.nivell = m.nivell;
+          candidats.push(copia);
+        }
+      });
+    });
+    var reptes = barrejar(candidats).slice(0, 2);
+    var gens = GENERADORS.filter(function (g) { return g.conceptes.indexOf(concepte) !== -1 && g.nivell <= nivellMax + 1; });
+    if (gens.length) {
+      try { reptes.push(aleatori(gens).crear(window.MA_CIENCIA, aleatori)); } catch (err) { /* sense generat */ }
+    }
+    if (!reptes.length) {
+      MISSIONS.forEach(function (m) {
+        m.reptes.forEach(function (q) { if ((q.conceptes || []).indexOf(concepte) !== -1) { var c = {}; for (var k in q) c[k] = q[k]; c.nivell = m.nivell; reptes.push(c); } });
+      });
+      reptes = barrejar(reptes).slice(0, 2);
+    }
+    E.missio = {
+      id: 'reforc-' + concepte, esReforc: true, concepte: concepte, nivell: nivellMax,
+      titol: 'Reforç: ' + (CONCEPTES[concepte] || concepte), reptes: reptes
+    };
+    E.resultat = { encerts: 0, raonament: 0, raonamentTotal: 0, errors: {} };
+    iniciarRepte(0);
+  }
+
+  // ---------------------------------------------------------------------
+  // Pintar
+  // ---------------------------------------------------------------------
+  function pintar() {
+    var cont = $('missions');
+    if (!cont) return;
+    var html = '';
+    if (E.pantalla === 'mapa') html = htmlMapa();
+    else if (E.pantalla === 'pregunta') html = htmlPregunta();
+    else if (E.pantalla === 'repte') html = htmlRepte();
+    else if (E.pantalla === 'tancament') html = htmlTancament();
+    cont.innerHTML = html;
+    pintarPanell();
+    $('m-punts').textContent = E.punts;
+    $('m-nivell').textContent = NIVELLS[E.nivellRecomanat] ? NIVELLS[E.nivellRecomanat].nom : E.nivellRecomanat;
+  }
+
+  function htmlMapa() {
+    var rec = missioRecomanada();
+    var html = '<header class="lema"><p class="eyebrow">Preguntes que importen</p>' +
+      '<h2>La ciència no comença amb una resposta, sinó amb una bona pregunta.</h2>' +
+      '<p>Tria una pregunta. Formula la teva hipòtesi, investiga amb la taula periòdica i torna a la pregunta per comprovar si ara la pots respondre.</p></header>';
+    [1, 2, 3].forEach(function (n) {
+      var nv = NIVELLS[n];
+      html += '<section class="nivell-missions"><h3>Nivell ' + n + ' · ' + esc(nv.nom) + ' <span>' + esc(nv.curs) + '</span></h3>' +
+        '<p class="nota">' + esc(nv.desc) + '</p><div class="graella-missions">';
+      MISSIONS.filter(function (m) { return m.nivell === n; }).forEach(function (m) {
+        var feta = E.fetes[m.id];
+        var estat = feta ? '<span class="estat feta">Completada · ' + feta.encerts + '/' + feta.total + '</span>'
+          : (rec && rec.id === m.id ? '<span class="estat rec">Recomanada</span>' : '');
+        html += '<button type="button" class="carta-missio' + (rec && rec.id === m.id ? ' recomanada' : '') + '" data-missio="' + m.id + '">' +
+          '<span class="carta-titol">' + esc(m.titol) + '</span>' +
+          '<span class="carta-pregunta">' + esc(m.preguntaImporta) + '</span>' + estat + '</button>';
+      });
+      html += '</div></section>';
+    });
+    return html;
+  }
+
+  function htmlPregunta() {
+    var m = E.missio;
+    var html = '<div class="targeta pregunta-importa">' +
+      '<p class="eyebrow">Preguntes que importen · Nivell ' + m.nivell + ' ' + esc(NIVELLS[m.nivell].nom) + '</p>' +
+      '<h2 class="gran-pregunta">' + esc(m.preguntaImporta) + '</h2>' +
+      '<p class="context">' + esc(m.fenomen) + '</p>' +
+      '<p class="atura">Atura\'t un moment. Abans d\'investigar, quina creus que és l\'explicació?</p>' +
+      '<div class="opcions" role="radiogroup" aria-label="La meva hipòtesi">';
+    m.hipotesis.forEach(function (h, i) {
+      html += '<button type="button" class="opcio" role="radio" data-hipotesi="' + i + '" aria-checked="' + (E.hipotesi === i) + '">' +
+        '<span class="lletra">' + LLETRES[i] + '</span><span>' + esc(h.t) + '</span></button>';
+    });
+    html += '</div>' +
+      '<label class="etiq-camp" for="hipotesi-text">També la pots escriure amb les teves paraules (opcional)</label>' +
+      '<textarea id="hipotesi-text" class="camp-text" rows="2">' + esc(E.hipotesiText) + '</textarea>' +
+      '<div class="accions"><button type="button" class="boto primari" id="b-hipotesi"' + (E.hipotesi === null ? ' disabled' : '') + '>Guardar la hipòtesi i investigar (+' + PUNTS.hipotesi + ')</button>' +
+      '<button type="button" class="boto" data-accio="mapa">Tornar a les preguntes</button></div></div>';
+    return html;
+  }
+
+  function htmlEnllacos(simbols, titol) {
+    var T = window.MA_CIENCIA.taula;
+    if (!simbols || !simbols.length) return '';
+    var h = '<div class="enllacos-el"><span>' + titol + '</span>';
+    simbols.forEach(function (s) {
+      var e = T.perSimbol[s];
+      if (e) h += '<button type="button" class="enllac-el" data-obrir="' + e.z + '">' + e.simbol + ' · ' + esc(e.nom) + '</button>';
+    });
+    return h + '</div>';
+  }
+
+  function htmlRepte() {
+    var m = E.missio, r = E.r, q = r.q;
+    var total = m.reptes.length;
+    var html = '<div class="cami" aria-label="Progrés de la missió">';
+    if (!m.esReforc) html += '<span class="pas fet">Pregunta</span>';
+    for (var i = 0; i < total; i++) {
+      html += '<span class="pas' + (i < E.iRepte ? ' fet' : (i === E.iRepte ? ' actual' : '')) + '">Repte ' + (i + 1) + '</span>';
+    }
+    if (!m.esReforc) html += '<span class="pas">Resposta</span>';
+    html += '</div>';
+
+    html += '<div class="targeta">' +
+      '<div class="etiquetes"><span class="etiq">' + esc(m.titol) + '</span><span class="etiq">' + esc(q.competencia) + '</span>' +
+      (m.esReforc ? '<span class="etiq reforc">Reforç</span>' : '') +
+      (r.intent === 2 && !r.resolt ? '<span class="etiq reforc">Segon intent</span>' : '') + '</div>' +
+      (!m.esReforc ? '<p class="recordatori">Investigues: <em>' + esc(m.preguntaImporta) + '</em></p>' : '') +
+      '<p class="context">' + esc(q.context) + '</p>' +
+      '<p class="pregunta" id="enunciat">' + esc(q.pregunta) + '</p>' +
+      '<div class="opcions" role="radiogroup" aria-labelledby="enunciat">';
+    r.opcions.forEach(function (o, i) {
+      var cls = '', desactivat = r.resolt || r.descartades.indexOf(i) !== -1;
+      if (r.resolt && o.ok) cls = ' correcta';
+      else if (r.descartades.indexOf(i) !== -1) cls = ' incorrecta';
+      html += '<button type="button" class="opcio' + cls + '" role="radio" data-i="' + i + '" aria-checked="' + (r.triada === i) + '"' +
+        (desactivat ? ' disabled' : '') + '><span class="lletra">' + LLETRES[i] + '</span><span>' + esc(o.t) + '</span></button>';
+    });
+    html += '</div>';
+
+    // Pistes progressives
+    if (r.pistes > 0) {
+      html += '<div class="pista">';
+      for (var p = 0; p < r.pistes; p++) html += '<p><strong>Pista ' + (p + 1) + ':</strong> ' + esc(q.pistes[p]) + '</p>';
+      html += '</div>';
+    }
+
+    if (!r.resolt) {
+      if (r.intent === 2) {
+        html += '<div class="feedback ko" role="status"><p class="veredicte">Encara no. Revisa el raonament</p><p>' + esc(r.missatge) + '</p>' +
+          '<p>Tens un segon intent. Equivocar-se també és investigar.</p></div>';
+      }
+      var quedenPistes = q.pistes && r.pistes < q.pistes.length;
+      html += '<div class="accions">' +
+        '<button type="button" class="boto primari" id="b-confirmar"' + (r.triada === null ? ' disabled' : '') + '>Confirmar resposta</button>' +
+        (quedenPistes ? '<button type="button" class="boto" id="b-pista">Pista ' + (r.pistes + 1) + ' de ' + q.pistes.length + ' (−' + PUNTS.pista + ')</button>' : '') +
+        '</div>' + htmlEnllacos(q.elements, 'Pots investigar a la taula:');
+    } else {
+      var triada = r.opcions[r.triada === null ? r.descartades[r.descartades.length - 1] : r.triada];
+      html += '<div class="feedback ' + (r.encert ? 'ok' : 'ko') + '" role="status">' +
+        '<p class="veredicte">' + (r.encert ? (r.intent === 1 ? 'Resposta correcta' : 'Correcte al segon intent') : 'Resposta incorrecta') + '</p>' +
+        '<p>' + esc(triada.fb) + '</p>' +
+        '<p><strong>Explicació científica.</strong> ' + esc(q.explicacio) + '</p>' +
+        htmlEnllacos(q.elements, 'Comprova-ho a la taula:') + '</div>';
+
+      // Justificació del raonament
+      if (q.justificacio) {
+        html += '<div class="justificacio"><p class="eyebrow">Justifica el raonament · +' + PUNTS.raonament[q.nivell || m.nivell] + ' punts de raonament</p>' +
+          '<p class="pregunta">' + esc(q.justificacio.pregunta) + '</p><div class="opcions">';
+        r.jOpcions.forEach(function (o, i) {
+          var cls = '';
+          if (r.jResolt) { if (o.ok) cls = ' correcta'; else if (i === r.jTriada) cls = ' incorrecta'; }
+          html += '<button type="button" class="opcio' + cls + '" role="radio" data-j="' + i + '" aria-checked="' + (r.jTriada === i) + '"' +
+            (r.jResolt ? ' disabled' : '') + '><span class="lletra">' + LLETRES[i] + '</span><span>' + esc(o.t) + '</span></button>';
+        });
+        html += '</div>';
+        if (r.jResolt) {
+          var jo = r.jOpcions[r.jTriada];
+          html += '<div class="feedback ' + (jo.ok ? 'ok' : 'ko') + '"><p>' + esc(jo.fb) + '</p></div>';
+        } else {
+          html += '<div class="accions"><button type="button" class="boto primari" id="b-justificar"' + (r.jTriada === null ? ' disabled' : '') + '>Confirmar la justificació</button></div>';
+        }
+        html += '</div>';
+      }
+      if (!q.justificacio || r.jResolt) {
+        var darrer = E.iRepte + 1 >= m.reptes.length;
+        html += '<div class="accions"><button type="button" class="boto primari" id="b-seguent">' +
+          (darrer ? (m.esReforc ? 'Acabar el reforç' : 'Tornar a la pregunta inicial') : 'Següent repte') + '</button></div>';
+      }
+    }
+    html += '<div class="accions secundaries"><button type="button" class="boto" data-accio="mapa">Tornar a les preguntes</button>' +
+      '<button type="button" class="boto" data-vista="taula">Anar a la taula</button></div></div>';
+    return html;
+  }
+
+  function htmlTancament() {
+    var m = E.missio, res = E.resultat;
+    var html = '<div class="targeta">';
+    if (m.esReforc) {
+      html += '<p class="eyebrow">Reforç completat</p><h2>' + esc(m.titol) + '</h2>' +
+        '<p>Encerts al primer intent: <strong>' + res.encerts + ' de ' + m.reptes.length + '</strong>.</p>' +
+        '<p>' + (res.encerts === m.reptes.length ? 'Aquest concepte ja està consolidat.' : 'Revisa les explicacions i torna-ho a provar més endavant.') + '</p>';
+    } else {
+      var h = E.hipotesi !== null ? m.hipotesis[E.hipotesi] : null;
+      html += '<p class="eyebrow">Tornem a la pregunta</p><h2 class="gran-pregunta">' + esc(m.preguntaImporta) + '</h2>';
+      if (h) {
+        html += '<div class="hipotesi-final"><p><strong>La teva hipòtesi inicial:</strong> ' + esc(h.t) + '</p>' +
+          (E.hipotesiText ? '<p><strong>Amb les teves paraules:</strong> «' + esc(E.hipotesiText) + '»</p>' : '') +
+          '<p>' + esc(h.comentari) + '</p></div>';
+      }
+      html += '<div class="resposta-final"><p class="eyebrow">Ara ja ho pots explicar</p><p>' + esc(m.tancament) + '</p></div>' +
+        '<dl class="estad"><dt>Encerts al primer intent</dt><dd>' + res.encerts + ' / ' + m.reptes.length + '</dd>' +
+        '<dt>Justificacions correctes</dt><dd>' + res.raonament + ' / ' + res.raonamentTotal + '</dd></dl>' +
+        '<p class="insignia-nova">Insígnia: <strong>' + esc(m.insignia) + '</strong></p>';
+    }
+    var debils = Object.keys(res.errors).filter(function (k) { return conceptesAReforcar().indexOf(k) !== -1; });
+    var rec = missioRecomanada();
+    html += '<div class="accions">';
+    if (debils.length) {
+      html += '<button type="button" class="boto primari" data-reforc="' + debils[0] + '">Reforçar: ' + esc(CONCEPTES[debils[0]]) + '</button>';
+    }
+    if (rec) {
+      html += '<button type="button" class="boto' + (debils.length ? '' : ' primari') + '" data-missio="' + rec.id + '">Següent pregunta: ' + esc(rec.titol) + '</button>';
+    }
+    html += '<button type="button" class="boto" data-accio="mapa">Totes les preguntes</button></div></div>';
+    return html;
+  }
+
+  function textResum() {
+    var fetes = Object.keys(E.fetes).length;
+    var linies = ['Missió Àtom — resultat de la sessió',
+      'Punts: ' + E.punts + ' (raonament: ' + E.puntsRaonament + ')',
+      'Missions completades: ' + fetes + ' de ' + MISSIONS.length,
+      'Nivell recomanat: ' + NIVELLS[E.nivellRecomanat].nom + ' (' + NIVELLS[E.nivellRecomanat].curs + ')'];
+    if (E.insignies.length) linies.push('Insígnies: ' + E.insignies.join(', '));
+    var dom = Object.keys(E.conceptes).filter(function (k) { return E.conceptes[k].ok > E.conceptes[k].ko; });
+    if (dom.length) linies.push('Conceptes consolidats: ' + dom.map(function (k) { return CONCEPTES[k]; }).join(', '));
+    var deb = conceptesAReforcar();
+    if (deb.length) linies.push('Per reforçar: ' + deb.map(function (k) { return CONCEPTES[k]; }).join(', '));
+    return linies.join('\n');
+  }
+
+  function pintarPanell() {
+    var p = $('panell');
+    if (!p) return;
+    var fetes = Object.keys(E.fetes).length;
+    var deb = conceptesAReforcar();
+    var html = '<h3>Progrés de la sessió</h3>' +
+      '<dl class="estad"><dt>Punts</dt><dd>' + E.punts + '</dd>' +
+      '<dt>Punts de raonament</dt><dd>' + E.puntsRaonament + '</dd>' +
+      '<dt>Missions completades</dt><dd>' + fetes + ' / ' + MISSIONS.length + '</dd>' +
+      '<dt>Nivell recomanat</dt><dd>' + esc(NIVELLS[E.nivellRecomanat].nom) + '</dd></dl>' +
+      '<div class="progres" aria-hidden="true"><div style="width:' + Math.round(fetes / Math.max(1, MISSIONS.length) * 100) + '%"></div></div>';
+    html += '<h3>Insígnies</h3>' + (E.insignies.length
+      ? '<ul class="insignies">' + E.insignies.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>'
+      : '<p class="nota">Completa una missió per obtenir la primera insígnia.</p>');
+    html += '<h3>Conceptes per reforçar</h3>' + (deb.length
+      ? '<div class="reforcos">' + deb.map(function (k) { return '<button type="button" class="enllac-el" data-reforc="' + k + '">' + esc(CONCEPTES[k]) + '</button>'; }).join('') + '</div>'
+      : '<p class="nota">Cap de moment. Els errors et mostraran què cal reforçar.</p>');
+    html += '<h3>Compartir el resultat</h3>' +
+      '<textarea class="resum-text" id="resum-text" readonly aria-label="Resum del resultat">' + esc(textResum()) + '</textarea>' +
+      '<button type="button" class="boto" id="b-copiar">Copiar el resum</button>' +
+      '<p class="missatge-copia" id="missatge-copia" aria-live="polite"></p>';
+    p.innerHTML = html;
+  }
+
+  function copiarResum() {
+    var text = textResum(), area = $('resum-text');
+    function alternativa() {
+      try {
+        area.focus(); area.select(); area.setSelectionRange(0, text.length);
+        var ok = document.execCommand && document.execCommand('copy');
+        $('missatge-copia').textContent = ok ? 'Resum copiat. Enganxa\'l on vulguis.' : 'Text seleccionat: copia\'l manualment.';
+      } catch (e) { $('missatge-copia').textContent = 'Selecciona el text i copia\'l manualment.'; }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { $('missatge-copia').textContent = 'Resum copiat. Enganxa\'l on vulguis.'; }, alternativa);
+    } else { alternativa(); }
+  }
+
+  function aDalt() { var c = $('missions'); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start' }); }
+
+  // Gestiona un clic dins la secció de missions. Retorna true si l'ha gestionat.
+  function clic(el) {
+    if (el.hasAttribute('data-missio')) { obrirMissio(el.getAttribute('data-missio')); aDalt(); return true; }
+    if (el.hasAttribute('data-reforc')) { iniciarReforc(el.getAttribute('data-reforc')); aDalt(); return true; }
+    if (el.getAttribute('data-accio') === 'mapa') { E.pantalla = 'mapa'; pintar(); aDalt(); return true; }
+    if (el.hasAttribute('data-hipotesi')) {
+      var area = $('hipotesi-text'); if (area) E.hipotesiText = area.value;
+      E.hipotesi = +el.getAttribute('data-hipotesi'); pintar(); return true;
+    }
+    if (el.id === 'b-hipotesi') { guardarHipotesi(); aDalt(); return true; }
+    if (el.hasAttribute('data-i') && E.r && !E.r.resolt) { E.r.triada = +el.getAttribute('data-i'); pintar(); return true; }
+    if (el.hasAttribute('data-j') && E.r && !E.r.jResolt) { E.r.jTriada = +el.getAttribute('data-j'); pintar(); return true; }
+    if (el.id === 'b-confirmar') { confirmar(); return true; }
+    if (el.id === 'b-justificar') { confirmarJustificacio(); return true; }
+    if (el.id === 'b-pista') { if (E.r) { E.r.pistes++; pintar(); } return true; }
+    if (el.id === 'b-seguent') { seguent(); aDalt(); return true; }
+    if (el.id === 'b-copiar') { copiarResum(); return true; }
+    return false;
+  }
+
+  window.MA_JOC = { estat: E, pintar: pintar, clic: clic, obrirMissio: obrirMissio, iniciarReforc: iniciarReforc };
+})();
+
+</script>
+<script>
+/* app.js */
+/* MISSIÓ ÀTOM — Interfície: navegació, taula i fitxes dels elements.
+   El motor de les missions és a joc.js.
+   Escrit en JavaScript clàssic (ES5) per funcionar també en iPads antics.
+   Si alguna part falla, la taula (que ja és a l'HTML) continua visible. */
+(function () {
+  'use strict';
+
+  var C = window.MA_CIENCIA;
+  if (!C) { return; }
+  var T = C.taula;
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function num(x) { return String(x).replace('.', ','); }
+
+  // =====================================================================
+  // 1. NAVEGACIÓ ENTRE VISTES
+  // =====================================================================
+  function mostrarVista(nom) {
+    var vistes = ['taula', 'missions'];
+    vistes.forEach(function (v) {
+      $('vista-' + v).hidden = v !== nom;
+      $('tab-' + v).setAttribute('aria-selected', v === nom ? 'true' : 'false');
+    });
+    if (nom === 'missions' && window.MA_JOC) { window.MA_JOC.pintar(); }
+    try { history.replaceState(null, '', '#' + nom); } catch (e) { /* sense historial */ }
+    window.scrollTo(0, 0);
+  }
+
+  // =====================================================================
+  // 2. FITXA DE L'ELEMENT
+  // =====================================================================
+  var seleccionat = null;
+
+  function seleccionar(z, desplacar) {
+    var e = T.perZ[z];
+    if (!e) return;
+    if (seleccionat) {
+      var anterior = document.querySelector('.el[data-z="' + seleccionat + '"]');
+      if (anterior) anterior.setAttribute('aria-pressed', 'false');
+    }
+    seleccionat = z;
+    var boto = document.querySelector('.el[data-z="' + z + '"]');
+    if (boto) boto.setAttribute('aria-pressed', 'true');
+    pintarResum(e);
+    pintarFitxa(e);
+    if (desplacar) {
+      var f = $('fitxa');
+      if (f.scrollIntoView) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function pintarResum(e) {
+    $('resum').innerHTML =
+      '<div class="gran"><small>' + e.z + '</small>' + e.simbol + '</div>' +
+      '<div class="nom-resum">' + esc(cap(e.nom)) + '</div>' +
+      '<div class="cfg-resum">' + esc(e.configAbreujada) + '</div>' +
+      '<div class="fam-resum">' + esc(e.familiaInfo.nom) + '</div>' +
+      '<button type="button" class="resum-boto" id="resum-boto">Veure la fitxa completa</button>';
+  }
+
+  function textGrup(p) {
+    if (p.grup === null) return 'Bloc f (sèrie dels ' + (p.periode === 6 ? 'lantànids' : 'actínids') + ')';
+    return 'Grup ' + p.grup;
+  }
+
+  function svgCapes(e) {
+    var c = e.capes, n = c.length;
+    var R0 = 16, pas = n > 5 ? 15 : 19, mida = (R0 + pas * n + 8) * 2, mig = mida / 2;
+    var s = '<svg class="capes-svg" viewBox="0 0 ' + mida + ' ' + mida + '" role="img" aria-label="Model de capes: ' + c.join(', ') + ' electrons">';
+    for (var i = 0; i < n; i++) {
+      var r = R0 + pas * (i + 1);
+      s += '<circle class="orbita" cx="' + mig + '" cy="' + mig + '" r="' + r + '"/>';
+      var k = c[i];
+      // Fins a 32 punts per capa; si n'hi ha més, es mostren com a número
+      for (var j = 0; j < k; j++) {
+        var ang = (2 * Math.PI * j) / k - Math.PI / 2;
+        var x = mig + r * Math.cos(ang), y = mig + r * Math.sin(ang);
+        s += '<circle class="electro" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (k > 18 ? 1.8 : 2.6) + '"/>';
+      }
+    }
+    s += '<circle class="nucli" cx="' + mig + '" cy="' + mig + '" r="' + (R0 - 2) + '"/>';
+    s += '<text class="nucli-text" x="' + mig + '" y="' + (mig + 4) + '" text-anchor="middle">' + e.z + '+</text>';
+    return s + '</svg>';
+  }
+
+  function htmlOrbitals(e) {
+    var perNivell = {};
+    C.perNivells(e.config).forEach(function (s) { (perNivell[s.n] = perNivell[s.n] || []).push(s); });
+    var html = '<div class="orbitals">';
+    Object.keys(perNivell).sort().forEach(function (n) {
+      html += '<div class="nivell"><div class="nivell-et">n = ' + n + '</div><div class="subnivells">';
+      perNivell[n].forEach(function (s) {
+        var caixes = C.caixes(s);
+        html += '<div class="subnivell"><span class="subnivell-et">' + s.n + s.l + C.superindex(s.e) + '</span><div class="caixes">';
+        caixes.forEach(function (c) {
+          html += '<span class="caixa' + (c.length === 1 ? ' mig' : '') + '">' + (c || '&nbsp;') + '</span>';
+        });
+        html += '</div></div>';
+      });
+      html += '</div></div>';
+    });
+    return html + '</div>';
+  }
+
+  function pintarFitxa(e) {
+    var p = e.posicio;
+    var en = e.en === null ? 'Sense dada' : num(e.en);
+    var massa = e.massa.charAt(0) === '[' ? e.massa + ' (isòtop més estable)' : num(e.massa) + ' u';
+    var A = e.nombreMassic || e.massicAprox;
+    var neutrons = A - e.z;
+    var notaA = e.nombreMassic
+      ? 'Isòtop més abundant: ' + e.nom + '-' + A + ' (A = ' + A + ').'
+      : 'Valor aproximat: A s\'ha estimat arrodonint la massa atòmica.';
+    var html =
+      '<div class="fitxa-cap">' +
+        '<div class="fitxa-simbol el ' + e.familia + '"><small>' + e.z + '</small>' + e.simbol + '</div>' +
+        '<div class="fitxa-titol"><h2>' + esc(e.nom) + '</h2>' +
+          '<div class="xips"><span class="xip">' + esc(e.familiaInfo.nom) + '</span>' +
+          '<span class="xip">' + textGrup(p) + '</span><span class="xip">Període ' + p.periode + '</span>' +
+          '<span class="xip">Bloc ' + p.bloc + '</span></div></div>' +
+      '</div>' +
+
+      '<div class="blocs">' +
+        '<section class="bloc"><h3>Partícules de l\'àtom</h3>' +
+          '<dl class="dades particules">' +
+            '<dt>Protons (al nucli)</dt><dd>' + e.z + '</dd>' +
+            '<dt>Neutrons (al nucli)</dt><dd>' + neutrons + (e.nombreMassic ? '' : ' aprox.') + '</dd>' +
+            '<dt>Electrons (àtom neutre)</dt><dd>' + e.z + '</dd>' +
+            '<dt>Nombre atòmic, Z</dt><dd>' + e.z + '</dd>' +
+            '<dt>Nombre màssic, A</dt><dd>' + A + '</dd>' +
+          '</dl>' +
+          '<p class="nota">' + esc(notaA) + ' Z indica els protons i defineix l\'element. A = protons + neutrons.</p>' +
+        '</section>' +
+
+        '<section class="bloc"><h3>Model de capes (simplificat)</h3>' +
+          svgCapes(e) +
+          '<div class="capes-llista">Electrons per capa: ' + e.capes.join(', ') + '</div>' +
+          '<p class="nota">Model de Bohr: només indica quants electrons hi ha a cada nivell d\'energia. No representa la forma ni la posició real dels electrons. ' +
+          'Electrons a la capa externa: <strong>' + e.electronsExterns + '</strong> (nivell ' + e.nivellExtern + ').</p>' +
+        '</section>' +
+      '</div>' +
+
+      '<section class="bloc"><h3>Configuració electrònica</h3>' +
+        '<div class="blocs estret">' +
+          '<div><div class="config-et">Completa (ordre d\'ompliment)</div><div class="config" id="cfg-completa">' + esc(e.configText) + '</div></div>' +
+          '<div><div class="config-et">Abreujada</div><div class="config">' + esc(e.configAbreujada) + '</div></div>' +
+        '</div>' +
+        (e.excepcio ? '<p class="avis"><strong>Excepció a l\'ordre d\'Aufbau.</strong> ' + esc(e.excepcio) + '</p>' : '') +
+        (e.predita ? '<p class="avis">Configuració predita teòricament: no s\'ha pogut mesurar.</p>' : '') +
+      '</section>' +
+
+      '<section class="bloc"><h3>Nivells, subnivells i orbitals</h3>' +
+        htmlOrbitals(e) +
+        '<p class="nota">Cada caixa és un orbital. Màxim 2 electrons per orbital, amb espins oposats ↑↓ (principi d\'exclusió de Pauli). ' +
+        'En un subnivell, primer un electró a cada caixa amb el mateix espín (regla de Hund). Els subnivells s\'omplen per ordre d\'energia (principi d\'Aufbau). ' +
+        'Electrons desaparellats: <strong>' + e.desaparellats + '</strong>.</p>' +
+      '</section>' +
+
+      '<div class="blocs">' +
+        '<section class="bloc"><h3>Propietats</h3><dl class="dades">' +
+          '<dt>Massa atòmica</dt><dd>' + esc(massa) + '</dd>' +
+          '<dt>Estat a 25 °C</dt><dd>' + esc(e.estatText) + '</dd>' +
+          '<dt>Electronegativitat</dt><dd>' + en + '</dd>' +
+        '</dl>' +
+        '<p class="nota">' + esc(e.familiaInfo.propietats) + '</p>' +
+        (e.dada ? '<p>' + esc(e.dada) + '</p>' : '') +
+        '</section>' +
+        '<section class="bloc"><h3>Aplicacions quotidianes</h3><p>' + esc(e.aplicacions) + '</p></section>' +
+      '</div>';
+    $('fitxa').innerHTML = html;
+  }
+
+  // =====================================================================
+  // 3. ESDEVENIMENTS (un sol escoltador per a tota la pàgina)
+  // =====================================================================
+  if (window.Element && !Element.prototype.closest) {
+    Element.prototype.closest = function (sel) {
+      var el = this;
+      while (el && el.nodeType === 1) { if (el.matches ? el.matches(sel) : el.msMatchesSelector(sel)) return el; el = el.parentElement; }
+      return null;
+    };
+  }
+
+  document.addEventListener('click', function (ev) {
+    var el = ev.target && ev.target.closest ? ev.target.closest('button') : null;
+    if (!el) return;
+    try {
+      if (el.classList.contains('el') && el.hasAttribute('data-z')) { seleccionar(+el.getAttribute('data-z'), false); return; }
+      if (el.id === 'resum-boto') { var f = $('fitxa'); if (f.scrollIntoView) f.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+      if (el.hasAttribute('data-vista')) { mostrarVista(el.getAttribute('data-vista')); return; }
+      if (el.hasAttribute('data-obrir')) { mostrarVista('taula'); seleccionar(+el.getAttribute('data-obrir'), true); return; }
+      if (window.MA_JOC) window.MA_JOC.clic(el);
+    } catch (err) {
+      if (window.console) console.error('Missió Àtom:', err);
+    }
+  });
+
+  // =====================================================================
+  // 4. INICI
+  // =====================================================================
+  window.MA_APP = { seleccionar: seleccionar, mostrarVista: mostrarVista };
+  try {
+    seleccionar(1, false);
+    if (window.MA_JOC) window.MA_JOC.pintar();
+    if (location.hash === '#missions') mostrarVista('missions');
+  } catch (err) {
+    if (window.console) console.error('Missió Àtom:', err);
+  }
+})();
+
+</script>
+
+</body>
+</html>
+
+</body></html>
